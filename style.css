@@ -155,3 +155,15 @@ button:active, .button:active {
     75% { transform: translateX(-0.2px) rotate(-1deg); }
     100% { transform: translateX(0); }
 }
+/* Setzt alle Bewegungen zurück auf Standard */
+button, .button, .speaker-button, img {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+}
+
+/* Optional: Nur ein ganz dezenter Zeiger, damit man weiß, dass es klickbar ist */
+button, .button, .speaker-button {
+    cursor: pointer;
+}
