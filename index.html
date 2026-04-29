@@ -2,18 +2,23 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Urmel & Nuts</title>
+    
     <link rel="stylesheet" href="style.css">
 
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <py-config src="./pyscript.toml"></py-config>
 </head>
 <body>
 
     <div class="container">
         <h1>Urmel & Nuts 🐾</h1>
         
-        <div id="db-content">Lade Hundedaten...</div>
+        <div id="db-content">
+            <p style="text-align:center;">Lade Datenbank-Module... bitte warten.</p>
+        </div>
 
         <div class="input-group">
             <input type="text" id="name" placeholder="Name (z.B. Urmel)">
@@ -26,16 +31,17 @@
 import sqlite3
 from pyscript import document
 
-# 1. Datenbank im RAM erstellen
+# 1. Datenbank im Browser-Speicher erstellen
 conn = sqlite3.connect(':memory:', check_same_thread=False)
 cursor = conn.cursor()
 
-# 2. Tabelle anlegen & Initialdaten
+# 2. Tabelle anlegen & Initialdaten einfügen
 cursor.execute("CREATE TABLE dogs (name TEXT, trick TEXT)")
 cursor.execute("INSERT INTO dogs VALUES ('Urmel', 'High Five'), ('Nuts', 'Rolle rückwärts')")
 conn.commit()
 
 def refresh_ui():
+    """Liest die Daten aus der DB und schreibt sie ins HTML"""
     cursor.execute("SELECT * FROM dogs")
     data = cursor.fetchall()
     
@@ -44,9 +50,11 @@ def refresh_ui():
         output += f"<li><span><strong>{name}</strong></span> <span>{trick}</span></li>"
     output += "</ul>"
     
+    # Das Div mit der ID 'db-content' aktualisieren
     document.querySelector("#db-content").innerHTML = output
 
 def add_entry(event):
+    """Wird aufgerufen, wenn man auf 'Speichern' klickt"""
     name_el = document.querySelector("#name")
     trick_el = document.querySelector("#trick")
     
@@ -54,14 +62,18 @@ def add_entry(event):
     trick = trick_el.value
     
     if name and trick:
+        # In DB speichern
         cursor.execute("INSERT INTO dogs VALUES (?, ?)", (name, trick))
         conn.commit()
+        
+        # Anzeige aktualisieren
         refresh_ui()
+        
         # Felder leeren
         name_el.value = ""
         trick_el.value = ""
 
-# Initiales Laden
+# Den allerersten Aufruf starten, damit die Liste beim Laden erscheint
 refresh_ui()
     </script>
 
