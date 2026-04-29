@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-    <title>Urmel & Nuts | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    
+    <title>Urmel & Nuts | Dashboard</title>
     <style>
+        /* Verhindert das Flackern beim Laden von Python */
         script[type="py"] { display: none; }
         
         .story-section {
@@ -73,19 +76,21 @@
         }
 
         /* Hotspot Styling */
-        .profile-container { position: relative; width: 45%; overflow: hidden; }
+        .profile-container { position: relative; width: 45%; overflow: hidden; height: 100%; }
         .hotspot {
             position: absolute; width: 20px; height: 20px;
             background: rgba(255, 255, 255, 0.4); border: 2px solid white;
             border-radius: 50%; cursor: pointer; z-index: 10;
-            animation: pulse 2s infinite; opacity: 0.4; transition: 0.3s;
+            animation: pulse 2s infinite; opacity: 0.7; transition: 0.3s;
         }
         .hotspot:hover { opacity: 1; background: rgba(255, 255, 255, 0.8); }
+        
         @keyframes pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
             70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
+
         .hotspot::after {
             content: attr(data-info); position: absolute; bottom: 30px; left: 50%;
             transform: translateX(-50%); background: #1c1e21; color: white;
@@ -94,34 +99,42 @@
             font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .hotspot:hover::after { opacity: 1; bottom: 35px; }
+
+        /* Responsive Fix */
+        @media (max-width: 768px) {
+            .story-section, .chat-container, div[style*="grid-column: span 3"] { grid-column: span 4 !important; }
+            div[style*="grid-column: span 2"] { grid-column: span 4 !important; }
+            div[style*="grid-column: span 1"] { grid-column: span 4 !important; }
+            .profile-container { width: 100%; height: 200px; }
+        }
     </style>
 </head>
 <body style="background-color: #f0f2f5; color: #1c1e21; margin: 0; font-family: 'Quicksand', sans-serif;">
 
-    <nav style="display: flex; justify-content: center; padding: 20px; gap: 20px; font-weight: 600; flex-wrap: wrap;">
-        <a href="index.html" style="text-decoration: none; color: #2c5282; background: rgba(44, 82, 130, 0.1); border-radius: 10px; padding: 5px 15px;">Home</a>
-        <a href="nuts.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Nuts</a>
-        <a href="urmel.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Urmel</a>
-        <a href="abenteuer.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Abenteuer</a>
-        <a href="Wuff-O-Meter.html" style="text-decoration: none; color: #2c5282; background: rgba(44, 82, 130, 0.1); border-radius: 10px; padding: 5px 15px;">Dolmetscher 🎙️</a>
+    <nav>
+        <a href="index.html" style="background: rgba(44, 82, 130, 0.1); border-radius: 10px;">Home</a>
+        <a href="nuts.html">Nuts</a>
+        <a href="urmel.html">Urmel</a>
+        <a href="abenteuer.html">Abenteuer</a>
+        <a href="Wuff-O-Meter.html">Dolmetscher 🎙️</a>
     </nav>
 
-    <div style="max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(180px, auto); gap: 20px;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
         
-        <div style="grid-column: span 3; background: linear-gradient(135deg, #2c5282, #63b3ed); border-radius: 30px; padding: 40px; color: white; display: flex; flex-direction: column; justify-content: center;">
-            <h1 style="margin: 0; font-size: 2.5em;">Hallo von Nurmel! 👋</h1>
+        <div style="grid-column: span 3; background: linear-gradient(135deg, #2c5282, #63b3ed); border-radius: 30px; padding: 40px; color: white; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 20px rgba(44, 82, 130, 0.2);">
+            <h1 style="margin: 0; font-size: 2.5em; font-weight: 700;">Hallo von Nurmel! 👋</h1>
             <p id="daily-status" style="font-size: 1.2em; opacity: 0.9; margin-top: 10px;">Lade Tagesstatus...</p>
         </div>
 
-        <div style="grid-column: span 1; background: white; border-radius: 30px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #e2e8f0;">
+        <div class="card" style="grid-column: span 1; display: flex; flex-direction: column; justify-content: space-between; padding: 25px !important; background: white !important;">
             <div>
                 <div style="font-size: 0.75em; color: #2c5282; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">Schon gewusst? 🤔</div>
                 <p id="fact-display" style="font-size: 0.95em; color: #2c5282; margin: 0; min-height: 80px; font-weight: 500;">Lade Fakt...</p>
             </div>
-            <button py-click="new_fact" style="background: #2c5282; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%;">Nächster Fakt →</button>
+            <button py-click="new_fact" style="padding: 10px !important; font-size: 0.9em !important; width: 100%;">Nächster Fakt →</button>
         </div>
 
-        <div style="grid-column: span 2; background: white; border-radius: 30px; overflow: hidden; display: flex; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div class="card" style="grid-column: span 2; overflow: hidden; display: flex; padding: 0 !important; background: white !important;">
             <div class="profile-container">
                 <img src="nuts_profil.jpg" style="width: 100%; height: 100%; object-fit: cover;">
                 <div class="hotspot" style="top: 38%; left: 47%;" data-info="Bettelblick Stufe 10 🥺"></div>
@@ -135,7 +148,7 @@
             </div>
         </div>
 
-        <div style="grid-column: span 2; background: white; border-radius: 30px; overflow: hidden; display: flex; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div class="card" style="grid-column: span 2; overflow: hidden; display: flex; padding: 0 !important; background: white !important;">
             <div class="profile-container">
                 <img src="urmel_profil.jpg" style="width: 100%; height: 100%; object-fit: cover;">
                 <div class="hotspot" style="top: 25%; left: 50%;" data-info="Wirbelwind-Zentrale 🌪️"></div>
@@ -150,47 +163,29 @@
 
         <div class="story-section">
             <h2 style="color: #2c5282; font-size: 2.2em; text-align: center; margin-bottom: 30px; font-weight: 700;">Wie alles begann...</h2>
-            <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 40px;">Es gibt Momente, die das Leben auf den Kopf stellen – und meistens haben sie vier Pfoten. Unsere Reise mit Nuts und Urmel fing nicht gleichzeitig an, aber heute sind sie als Team unzertrennlich, auch wenn sie unterschiedlicher nicht sein könnten.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+            <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 40px;">Es gibt Momente, die das Leben auf den Kopf stellen – und meistens haben sie vier Pfoten.</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 <div class="story-column nuts-column">
                     <h3 style="color: #2c5282; margin-top: 0;">Nuts: Der Fels in der Brandung</h3>
-                    <p>Er kam als Erster zu uns. Mit seinem treuen Blick hat er uns sofort klargemacht: <strong>„Warum rennen, wenn man auch liegen kann?“</strong>. Er ist unser Gourmet-Experte, der jedes Rascheln einer Leckerli-Tüte aus drei Kilometern Entfernung hört.</p>
+                    <p>Er kam als Erster zu uns. Sein Motto: <strong>„Warum rennen, wenn man auch liegen kann?“</strong>.</p>
                 </div>
                 <div class="story-column urmel-column">
-                    <h3 style="color: #38a169; margin-top: 0;">Urmel: Der Wirbelwind zieht ein</h3>
-                    <p>Plötzlich war es vorbei mit der Ruhe! Als Aussie-Border-Mix brachte er eine Energie mit, die selbst Nuts kurzzeitig aus dem Körbchen lockte. Urmel hat uns beigebracht, dass ALLES ein Spielzeug sein kann, wenn man nur fest genug daran glaubt.</p>
+                    <h3 style="color: #38a169; margin-top: 0;">Urmel: Der Wirbelwind</h3>
+                    <p>Plötzlich war es vorbei mit der Ruhe! Urmel brachte Energie für drei Hunde mit ins Haus.</p>
                 </div>
             </div>
         </div>
 
-        <div class="chat-container">
+        <div class="chat-container card" style="background: #f8fafc !important;">
             <h2 style="text-align: center; color: #1c1e21; margin-bottom: 20px;">Abgehört: Ein typisches Gespräch 💬</h2>
-            
-            <div class="bubble bubble-nuts">
-                <span class="speaker-name">Nuts</span>
-                Urmel, sag mal... warum rennst du eigentlich im Kreis? Die Taube ist weg und die Couch hat genau die richtige Temperatur für ein Schläfchen. 😴
-            </div>
-
-            <div class="bubble bubble-urmel">
-                <span class="speaker-name">Urmel</span>
-                KEINE ZEIT FÜR SCHLAFEN! Hast du das gesehen? Ein Blatt ist vom Baum gefallen! Ich muss es bewachen! WO IST DER BALL?! 🎾⚡
-            </div>
-
-            <div class="bubble bubble-nuts">
-                <span class="speaker-name">Nuts</span>
-                Der Ball liegt unter meinem Ohr. Da liegt er sicher. Profi-Tipp: Wenn wir beide gleichzeitig gähnen, gibt es Schnuck. 🦴
-            </div>
-
-            <div class="bubble bubble-urmel">
-                <span class="speaker-name">Urmel</span>
-                LECKERCHEN?! Ich liebe Schnuck! Aber warte... war da ein Geräusch? Ich geh mal kurz gucken – bin in 0,2 Sekunden zurück! 💨
-            </div>
+            <div class="bubble bubble-nuts"><span class="speaker-name">Nuts</span>Urmel, warum rennst du? Die Couch ist doch warm. 😴</div>
+            <div class="bubble bubble-urmel"><span class="speaker-name">Urmel</span>KEINE ZEIT! Da ist ein Blatt gefallen! WO IST DER BALL?! 🎾⚡</div>
         </div>
 
-        <div style="grid-column: span 4; background: #ffffff; border-radius: 30px; padding: 40px; text-align: center; border: 2px dashed #cbd5e0; margin-top: 20px;">
-            <h3 style="margin-top: 0;">Abenteuer-Generator 🎡</h3>
+        <div class="card" style="grid-column: span 4; text-align: center; border: 2px dashed #cbd5e0 !important; background: white !important;">
+            <h3 style="margin-top: 0;">Abenteuer-Idee 🎡</h3>
             <div id="trick-display" style="font-size: 1.4em; font-weight: bold; color: #2c5282; margin: 20px 0;">Was machen wir heute?</div>
-            <button py-click="get_idea" style="background: #1c1e21; color: white; border: none; padding: 15px 40px; border-radius: 15px; font-weight: bold; cursor: pointer;">Vorschlag würfeln</button>
+            <button py-click="get_idea">Vorschlag würfeln</button>
         </div>
 
     </div>
@@ -204,13 +199,18 @@ import random
 from pyscript import document
 from datetime import datetime
 
-facts = ["Nuts' Superkraft: Bettelblick Stufe 10.", "Urmel-Logik: ALLES ist ein Spielzeug.", "Nuts hört Rascheln aus 3km Entfernung."]
+facts = [
+    "Nuts' Superkraft: Bettelblick Stufe 10.", 
+    "Urmel-Logik: ALLES ist ein Spielzeug.", 
+    "Nuts hört Rascheln aus 3km Entfernung.",
+    "Urmel kann in 0.5 Sekunden von 0 auf 100 beschleunigen."
+]
 
 def new_fact(event=None):
     document.getElementById("fact-display").innerHTML = random.choice(facts)
 
 def get_idea(event):
-    ideen = ["Waldspaziergang 🌲", "Clicker-Training 🔘", "Suchspiele 🎾", "Couch-Tag 😴"]
+    ideen = ["Waldspaziergang 🌲", "Clicker-Training 🔘", "Suchspiele 🎾", "Couch-Tag 😴", "Leckerli-Suche im Garten 🦴"]
     document.getElementById("trick-display").innerHTML = random.choice(ideen)
 
 def update_status():
@@ -220,6 +220,7 @@ def update_status():
     else: msg = "Feierabend. Zeit für Profi-Schnarchen."
     document.getElementById("daily-status").innerHTML = msg
 
+# Initialisierung
 update_status()
 new_fact()
     </script>

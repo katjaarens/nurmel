@@ -13,51 +13,39 @@
 
     <style>
         py-config { display: none; }
-        body { font-family: 'Quicksand', sans-serif; background-color: #f0f2f5; margin: 0; }
+        /* Kleiner Fix für das Laden von PyScript */
+        #weather-display:empty::before { content: "Wetter-Check läuft..."; }
     </style>
     <title>Abenteuer - Urmel & Nuts</title>
 </head>
 <body>
 
-    
-    <nav style="display: flex; justify-content: center; padding: 20px; gap: 20px; font-weight: 600; flex-wrap: wrap;">
-    <a href="index.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Home</a>
-    <a href="nuts.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Nuts</a>
-    <a href="urmel.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Urmel</a>
-    <a href="abenteuer.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Abenteuer</a>
-    <a href="Wuff-O-Meter.html" style="text-decoration: none; color: #2c5282; background: rgba(44, 82, 130, 0.1); border-radius: 10px; padding: 5px 15px;">Dolmetscher 🎙️</a>
-</nav>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="nuts.html">Nuts</a>
+        <a href="urmel.html">Urmel</a>
+        <a href="abenteuer.html" style="background: rgba(99, 179, 237, 0.2);">Abenteuer</a>
+        <a href="Wuff-O-Meter.html">Dolmetscher 🎙️</a>
+    </nav>
 
-    <div style="max-width: 900px; margin: 20px auto; padding: 20px; display: grid; gap: 20px;">
+    <div class="container">
         
-        <div style="background: linear-gradient(135deg, #2c5282, #63b3ed); border-radius: 30px; padding: 40px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div class="card" style="background: linear-gradient(135deg, #2c5282, #63b3ed) !important; color: white; text-align: center; margin-bottom: 30px;">
             <h1 style="margin: 0; font-size: 2.5em; font-weight: 700;">Unsere Abenteuer 🐾🐾</h1>
-            <p style="font-size: 1.2em; opacity: 0.9; margin-top: 10px; margin-bottom: 25px;">Was wir heute wohl erleben?</p>
+            <p style="font-size: 1.2em; opacity: 0.9; margin: 15px 0 25px 0;">Was wir heute wohl erleben?</p>
             
-            <button py-click="get_adventure" 
-                    onmouseover="this.style.background='rgba(255,255,255,0.2)';" 
-                    onmouseout="this.style.background='rgba(255,255,255,0.1)';"
-                    style="background: rgba(255,255,255,0.1); 
-                           color: white; 
-                           border: 2px solid white; 
-                           padding: 12px 30px; 
-                           border-radius: 50px; 
-                           font-weight: 700; 
-                           font-size: 1.1em; 
-                           cursor: pointer; 
-                           transition: all 0.3s ease; 
-                           font-family: 'Quicksand';">
+            <button py-click="get_adventure" id="dice-button">
                 🎲 Vorschlag würfeln
             </button>
         </div>
 
-        <div style="background: white; border-radius: 30px; padding: 30px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <div class="card" style="text-align: center; margin-bottom: 20px; padding: 20px !important;">
             <div id="weather-display" style="font-size: 1.2em; color: #1c1e21; font-weight: 600;">
                 Prüfe Wetterbedingungen...
             </div>
         </div>
 
-        <div id="adventure-result-card" style="display: none; background: white; border-radius: 30px; padding: 40px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; animation: fadeIn 0.5s;">
+        <div id="adventure-result-card" class="card" style="display: none; text-align: center; animation: fadeIn 0.5s;">
             <div style="font-size: 0.8em; color: #2c5282; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">Heutiges Ziel:</div>
             <div id="adventure-display" style="font-size: 1.8em; font-weight: 700; color: #2c5282;"></div>
         </div>
@@ -70,15 +58,20 @@ import requests
 import pyodide_http
 from pyscript import document
 
+# Ermöglicht HTTP-Requests in PyScript
 pyodide_http.patch_all()
 
 def get_weather():
     try:
+        # Wetter für Erwitte (51.61, 8.34)
         response = requests.get("https://api.open-meteo.com/v1/forecast?latitude=51.61&longitude=8.34&current_weather=true")
-        data = response.json()
-        temp = data['current_weather']['temperature']
-        document.getElementById("weather-display").innerHTML = f"Aktuell in Erwitte: {temp}°C 🐾"
-    except:
+        if response.status_code == 200:
+            data = response.json()
+            temp = data['current_weather']['temperature']
+            document.getElementById("weather-display").innerHTML = f"Aktuell in Erwitte: {temp}°C 🐾"
+        else:
+            document.getElementById("weather-display").innerHTML = "Wetter-Server schläft gerade... 💤"
+    except Exception as e:
         document.getElementById("weather-display").innerHTML = "Schau aus dem Fenster! 🪟"
 
 def get_adventure(event):
@@ -89,27 +82,23 @@ def get_adventure(event):
         "Das große Schnüffel-Lotto: Wer findet das versteckte Stück Käse zuerst? 🧀",
         "Eichhörnchen-TV: 10 Minuten intensives Beobachten am Fenster 🐿️",
         "Pfoten-Wellness: Eine Massage für müde Gassi-Muskeln 🐾",
-        "Der 'Unsichtbare' Keks: Tu so, als würdest du ein Leckerli werfen (Achtung: Enttäuschungsgefahr!) 🎭",
+        "Der 'Unsichtbare' Keks: Tu so, als würdest du ein Leckerli werfen! 🎭",
         "Nuts entscheidet die Richtung: Wir folgen der Nase, egal wohin! 👃",
         "Urmel-Special: Socken-Sortieren (Wir klauen sie, du suchst sie) 🧦",
-        "Das 'Komm-her-aber-bleib-da'-Spiel: Verwirrung pur für alle Beteiligten 😵‍💫",
-        "Unterwasser-Expedition: Wir werfen Steinchen in den Bach (Urmel beobachtet) 🌊",
+        "Das 'Komm-her-aber-bleib-da'-Spiel: Verwirrung pur! 😵‍💫",
+        "Unterwasser-Expedition: Wir werfen Steinchen in den Bach 🌊",
         "Die Leckerli-Pipeline: Rollende Leckerlis über den Parkettboden jagen 💨",
-        "Show-Laufen: Wer kann am schönsten 'Sitz' machen, wenn Besuch kommt? 🎩",
+        "Show-Laufen: Wer kann am schönsten 'Sitz' machen? 🎩",
         "Der 'Stille' Beobachter: Wer kann länger ununterbrochen starren? 👀",
-        "Das Schnitzelsuchgerät: Wir trainieren für den Ernstfall im Biergarten 🥩"
+        "Das Schnitzelsuchgerät: Wir trainieren für den Biergarten 🥩"
     ]
+    # Zeige die Karte und wähle zufällig
     document.getElementById("adventure-result-card").style.display = "block"
     document.getElementById("adventure-display").innerHTML = random.choice(abenteuer)
 
+# Direkt beim Laden ausführen
 get_weather()
     </script>
 
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </body>
 </html>

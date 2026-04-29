@@ -11,30 +11,32 @@
     <title>Profil von Urmel</title>
     <style>
         script[type="py"] { display: none; }
+        /* Grüner Akzent für die Navigation auf dieser Seite */
+        .nav-active-urmel { background: rgba(56, 161, 105, 0.2) !important; color: #38a169 !important; }
     </style>
 </head>
-<body style="background-color: #f0f2f5; color: #1c1e21; margin: 0; font-family: 'Quicksand', sans-serif;">
+<body>
 
-    <nav style="display: flex; justify-content: center; padding: 20px; gap: 20px; font-weight: 600; flex-wrap: wrap;">
-        <a href="index.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Home</a>
-        <a href="nuts.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Nuts</a>
-        <a href="urmel.html" style="text-decoration: none; color: #2c5282; background: rgba(56, 161, 105, 0.1); border-radius: 10px; padding: 5px 15px;">Urmel</a>
-        <a href="abenteuer.html" style="text-decoration: none; color: #606770; padding: 5px 10px;">Abenteuer</a>
-        <a href="Wuff-O-Meter.html" style="text-decoration: none; color: #2c5282; background: rgba(44, 82, 130, 0.1); border-radius: 10px; padding: 5px 15px;">Dolmetscher 🎙️</a>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="nuts.html">Nuts</a>
+        <a href="urmel.html" class="nav-active-urmel">Urmel</a>
+        <a href="abenteuer.html">Abenteuer</a>
+        <a href="Wuff-O-Meter.html">Dolmetscher 🎙️</a>
     </nav>
 
     <audio id="urmel-sound" src="urmel.mp3" preload="auto"></audio>
 
-    <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
+    <div class="container">
         
-        <div style="background: white; border-radius: 40px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <div class="card" style="text-align: center; margin-top: 20px;">
             
             <div style="position: relative; display: inline-block;">
                 <img src="urmel_profil.jpg" 
                      onclick="document.getElementById('urmel-sound').play()" 
+                     style="width: 250px; height: 250px; border-radius: 50%; border: 10px solid white; object-fit: cover; cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 8px 20px rgba(0,0,0,0.1);"
                      onmouseover="this.style.transform='scale(1.05)';" 
                      onmouseout="this.style.transform='scale(1)';"
-                     style="width: 250px; height: 250px; border-radius: 50%; border: 10px solid #f0f2f5; object-fit: cover; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 8px 20px rgba(0,0,0,0.1);"
                      alt="Urmel Profilbild">
                 
                 <div style="position: absolute; bottom: 10px; right: 10px; background: #38a169; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
@@ -43,33 +45,33 @@
             </div>
 
             <h1 style="color: #38a169; font-size: 3em; margin: 20px 0 10px 0; font-weight: 700;">Urmel</h1>
-            <p style="font-size: 1.2em; color: #606770; font-style: italic; margin-bottom: 20px;">
+            <p style="font-size: 1.2em; color: #4a5568; font-style: italic; margin-bottom: 20px;">
                 "Warum bremsen, wenn man auch fliegen kann?" 🌪️
             </p>
 
-            <div style="background: #f0fdf4; border-radius: 20px; padding: 25px; margin: 20px auto; max-width: 550px; border-left: 5px solid #38a169; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="background: rgba(240, 253, 244, 0.6); border-radius: 20px; padding: 25px; margin: 20px auto; max-width: 550px; border-left: 5px solid #38a169; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                 <p id="quote-display" style="font-style: italic; font-size: 1.1em; color: #2d3748; margin-bottom: 15px; min-height: 1.5em;">
                     Urmel hat eine blitzschnelle Idee...
                 </p>
-                <button py-click="new_quote" style="background: #38a169; color: white; border: none; padding: 12px 25px; border-radius: 15px; cursor: pointer; font-family: 'Quicksand'; font-weight: 600; font-size: 1em; transition: 0.3s;">
+                <button py-click="new_quote" style="background: #38a169;">
                     Urmels Energie-Gedanke 🎾
                 </button>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin-top: 30px;">
-                <div style="background: #f8fafc; padding: 20px; border-radius: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: left; margin-top: 30px;">
+                <div style="background: rgba(255,255,255,0.4); padding: 20px; border-radius: 20px;">
                     <div style="font-weight: 700; color: #38a169; font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px;">Rasse</div>
                     <div style="font-size: 1.1em;">Aussie-Border-Mix</div>
                 </div>
-                <div style="background: #f8fafc; padding: 20px; border-radius: 20px;">
+                <div style="background: rgba(255,255,255,0.4); padding: 20px; border-radius: 20px;">
                     <div style="font-weight: 700; color: #38a169; font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px;">Lieblings-Spielzeug</div>
                     <div style="font-size: 1.1em;">ALLES (besonders Bälle)</div>
                 </div>
-                <div style="background: #f8fafc; padding: 20px; border-radius: 20px;">
+                <div style="background: rgba(255,255,255,0.4); padding: 20px; border-radius: 20px;">
                     <div style="font-weight: 700; color: #38a169; font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px;">Hobby</div>
-                    <div style="font-size: 1.1em;">Eichhörnchen-Management & Sprints</div>
+                    <div style="font-size: 1.1em;">Eichhörnchen-Management</div>
                 </div>
-                <div style="background: #f8fafc; padding: 20px; border-radius: 20px;">
+                <div style="background: rgba(255,255,255,0.4); padding: 20px; border-radius: 20px;">
                     <div style="font-weight: 700; color: #38a169; font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px;">Superkraft</div>
                     <div style="font-size: 1.1em;">Vollgas-Modus ⚡</div>
                 </div>
@@ -77,7 +79,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 40px;">
-            <a href="index.html" style="text-decoration: none; background: #1c1e21; color: white; padding: 15px 30px; border-radius: 20px; font-weight: 700; display: inline-block;">
+            <a href="index.html" class="button" style="text-decoration: none; display: inline-block; background: #1c1e21;">
                 ← Zurück zum Dashboard
             </a>
         </div>
@@ -88,7 +90,6 @@ import random
 from pyscript import document
 
 def new_quote(event):
-    # KEIN Sound-Befehl hier, damit der Button stumm bleibt
     quotes = [
         "„Hast du das gesehen? Ein Blatt! Ich muss es fangen! SOFORT!“ 🍂",
         "„Gaaaanz ruhig... okay, fertig mit ruhig. WO IST DER BALL?!“ 🎾",
@@ -97,7 +98,6 @@ def new_quote(event):
         "„Nuts schläft? Perfekt, dann kann ich ihn als Hindernis-Parcours nutzen!“ 🎢"
     ]
     document.getElementById("quote-display").innerHTML = random.choice(quotes)
-
 </script>
 
 </body>
