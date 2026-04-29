@@ -1,16 +1,30 @@
-<h1>Urmel & Nuts 🐾</h1>
-<div id="db-content">Lade Hundedaten...</div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Urmel & Nuts</title>
+    <link rel="stylesheet" href="style.css">
 
-<section style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-    <h3>Neuen Eintrag hinzufügen</h3>
-    <input type="text" id="name" placeholder="Name (z.B. Urmel)">
-    <input type="text" id="trick" placeholder="Lieblings-Trick">
-    <button id="add-btn" py-click="add_entry">Speichern</button>
-</section>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</head>
+<body>
 
-<py-script>
+    <div class="container">
+        <h1>Urmel & Nuts 🐾</h1>
+        
+        <div id="db-content">Lade Hundedaten...</div>
+
+        <div class="input-group">
+            <input type="text" id="name" placeholder="Name (z.B. Urmel)">
+            <input type="text" id="trick" placeholder="Lieblings-Trick">
+            <button id="add-btn" py-click="add_entry">Speichern</button>
+        </div>
+    </div>
+
+    <script type="py">
 import sqlite3
-from pyscript import display, Element
+from pyscript import document
 
 # 1. Datenbank im RAM erstellen
 conn = sqlite3.connect(':memory:', check_same_thread=False)
@@ -27,23 +41,29 @@ def refresh_ui():
     
     output = "<ul>"
     for name, trick in data:
-        output += f"<li><strong>{name}</strong> kann: {trick}</li>"
+        output += f"<li><span><strong>{name}</strong></span> <span>{trick}</span></li>"
     output += "</ul>"
     
-    Element("db-content").element.innerHTML = output
+    document.querySelector("#db-content").innerHTML = output
 
 def add_entry(event):
-    name = Element("name").element.value
-    trick = Element("trick").element.value
+    name_el = document.querySelector("#name")
+    trick_el = document.querySelector("#trick")
+    
+    name = name_el.value
+    trick = trick_el.value
     
     if name and trick:
         cursor.execute("INSERT INTO dogs VALUES (?, ?)", (name, trick))
         conn.commit()
         refresh_ui()
         # Felder leeren
-        Element("name").element.value = ""
-        Element("trick").element.value = ""
+        name_el.value = ""
+        trick_el.value = ""
 
-# Initiales Laden der Liste
+# Initiales Laden
 refresh_ui()
-</py-script>
+    </script>
+
+</body>
+</html>
