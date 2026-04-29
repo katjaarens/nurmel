@@ -104,3 +104,21 @@ button:hover {
         opacity: 0;
     }
 }
+/* Macht alle Buttons beweglich */
+button, .button {
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer;
+}
+
+/* Effekt beim Drüberfahren mit der Maus */
+button:hover, .button:hover {
+    transform: translateY(-3px) scale(1.05); /* Button hüpft leicht hoch und wird größer */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Schatten wird tiefer */
+    filter: brightness(1.1); /* Wird ein bisschen heller */
+}
+
+/* Effekt beim Draufklicken */
+button:active, .button:active {
+    transform: translateY(1px) scale(0.95); /* Button drückt sich nach unten ein */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
