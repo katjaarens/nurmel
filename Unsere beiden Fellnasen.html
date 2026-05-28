@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamteam – Nuts & Urmel</title>
+
+    <style>
+        :root {
+            --bg: #020617;
+            --text-main: #F8FAFC;
+            --text-soft: #94A3B8;
+            --text-muted: #64748B;
+
+            --card-bg: #0F172A;
+            --border: rgba(255,255,255,0.08);
+
+            --accent-urmel: #10b981;
+            --accent-nuts: #3b82f6;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        /* NAVIGATION */
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 20px 24px;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .main-nav a {
+            text-decoration: none;
+            color: var(--text-soft);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 8px 20px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .main-nav a:hover,
+        .main-nav a.active {
+            color: #ffffff;
+            background: rgba(255,255,255,0.1);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+        }
+
+        /* CONTENT */
+        .exhibition-hall {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px 100px 20px;
+        }
+
+        .wall-engraving {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .wall-engraving h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0 0 12px 0;
+            color: var(--text-main);
+            text-shadow: 0 0 30px rgba(255,255,255,0.25);
+        }
+
+        .wall-engraving p {
+            color: var(--text-soft);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 500;
+        }
+        .wall-engraving .subtitle {
+    text-align: center;
+    display: block;
+    margin-top: 12px;
+    color: var(--text-soft);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 500;
+}
+
+
+        .centerpiece-frame {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 80px auto;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow:
+                0 30px 60px rgba(0,0,0,0.5),
+                inset 0 0 20px rgba(0,0,0,0.6);
+            border: 1px solid var(--border);
+        }
+
+        .museum-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            justify-content: center;
+        }
+
+       /* ============================
+   PLAQUES (Karten)
+============================ */
+
+.museum-plaque {
+    flex: 1;
+    min-width: 340px;
+    max-width: 520px;
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 6px;
+    padding: 40px;
+    box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.6),
+        inset 0 1px 0px rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden; /* wichtig für glossy Effekt */
+}
+
+/* ⭐ Innerer Rahmen (dein Original) */
+.museum-plaque::after {
+    content: "";
+    position: absolute;
+    top: 10px; right: 10px; bottom: 10px; left: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+/* ⭐ Glossy Lichtreflex oben links */
+.museum-plaque::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.05) 40%,
+        rgba(255,255,255,0) 70%
+    );
+    transform: rotate(8deg);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* ============================
+   FARBRAMEN UM DIE GANZE KARTE
+============================ */
+
+/* Grundstruktur */
+.museum-plaque {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Voller Rahmen */
+.museum-plaque .plaque-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 6px;
+    border: 3px solid transparent;
+    pointer-events: none;
+}
+
+/* Urmel – grüner Rahmen */
+.museum-plaque.urmel .plaque-indicator {
+    border-color: var(--accent-urmel);
+    box-shadow: 0 0 15px var(--accent-urmel);
+}
+
+/* Nuts – blauer Rahmen */
+.museum-plaque.nuts .plaque-indicator {
+    border-color: var(--accent-nuts);
+    box-shadow: 0 0 15px var(--accent-nuts);
+}
+
+/* ⭐ Glossy‑Umrandung für den Namen "Urmel" */
+.museum-plaque.urmel h2 {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-urmel);
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.18),
+        rgba(16,185,129,0.15) 40%,
+        rgba(0,0,0,0.25)
+    );
+    box-shadow:
+        0 0 12px rgba(16,185,129,0.35),
+        inset 0 0 8px rgba(255,255,255,0.15);
+}
+/* ⭐ Glossy-Name für Nuts */
+.museum-plaque.nuts h2 {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-nuts); /* Nuts-Blau */
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.15) 40%,
+        rgba(0,0,0,0.25)
+    );
+    box-shadow:
+        0 0 12px rgba(59,130,246,0.35),
+        inset 0 0 8px rgba(255,255,255,0.15);
+}
+
+
+
+        .catalog-number {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-soft);
+            margin-bottom: 8px;
+        }
+
+        .museum-plaque h2 {
+            margin: 0 0 6px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .catalog-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .exhibit-specs {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #CBD5E1;
+        }
+
+        .archive-label {
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .archive-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .archive-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 14px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: var(--text-soft);
+        }
+
+        .archive-list li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            font-size: 0.8rem;
+            top: 1px;
+        }
+
+        .museum-plaque.urmel .archive-list li::before { color: var(--accent-urmel); }
+        .museum-plaque.nuts .archive-list li::before { color: var(--accent-nuts); }
+
+        .archive-list li strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        /* DREAMTEAM – Buchstaben wie bei "Nuts & Urmel" */
+.dreamteam-title {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.dreamteam-title span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 55px;
+    height: 55px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+        0 0 12px rgba(255,255,255,0.05),
+        inset 0 0 8px rgba(255,255,255,0.08);
+    text-transform: uppercase;
+}
+
+/* Abwechselnd Blau & Grün */
+.dreamteam-title span:nth-child(odd) {
+    border-color: rgba(59,130,246,0.8);
+    box-shadow:
+        0 0 12px rgba(59,130,246,0.6),
+        inset 0 0 8px rgba(255,255,255,0.1);
+}
+
+.dreamteam-title span:nth-child(even) {
+    border-color: rgba(16,185,129,0.8);
+    box-shadow:
+        0 0 12px rgba(16,185,129,0.6),
+        inset 0 0 8px rgba(255,255,255,0.1);
+}
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="nuts.html">Nuts</a>
+        <a href="urmel.html">Urmel</a>
+        <a href="abenteuer.html">Abenteuer</a>
+        <a href="Unsere beiden Fellnasen.html" class="active">Dreamteam</a>
+    </nav>
+
+    <div class="exhibition-hall">
+
+        <div class="wall-engraving">
+    <h1 class="dreamteam-title">
+        <span>D</span>
+        <span>R</span>
+        <span>E</span>
+        <span>A</span>
+        <span>M</span>
+        <span>T</span>
+        <span>E</span>
+        <span>A</span>
+        <span>M</span>
+    </h1>
+
+    <p class="subtitle">Zwei Seelen, ein Zuhause — eine stille Verbindung</p>
+</div>
+
+
+        <div class="centerpiece-frame"></div>
+
+        <div class="museum-grid">
+
+            <!-- NUTS -->
+            <div class="museum-plaque nuts">
+                <div class="plaque-indicator"></div>
+                <div class="catalog-number">The Heart‑Stealer — Der Sofakönig  </div>
+                <h2>Nuts</h2>
+                <div class="catalog-subtitle">Ein sanfter Regent des Wohnzimmers, dessen eisblaue Augen jede Stimmung wärmer machen.g</div>
+
+                <div class="exhibit-specs">
+                    <strong>Look:</strong> Eisblaues Augenpaar<br>
+                    <strong>Künstlerischer Charakter:</strong> Verschmust, loyal, ruhig
+                </div>
+
+                <div class="archive-label">Wesen & Dynamik</div>
+                <ul class="archive-list">
+                    <li><strong>Superkraft:</strong> Blick, der Herzen schmilzt</li>
+                    <li><strong>Hauptfokus:</strong> Schlafen & Sonne tanken</li>
+                    <li><strong>Highlight:</strong> Gemeinsame Abenteuer</li>
+                </ul>
+
+                <div class="archive-label">Eigenheiten</div>
+                <ul class="archive-list">
+                    <li><strong>Flausen:</strong> Keine – Musterschüler</li>
+                    <li><strong>Inkompatibilität:</strong> Pfoten & Ohren berühren</li>
+                    <li><strong>Talent:</strong> Spielzeug‑Begrüßungschor</li>
+                </ul>
+            </div>
+            
+            <!-- URMEL -->
+            <div class="museum-plaque urmel">
+                <div class="plaque-indicator"></div>
+                <div class="catalog-number">Urmel – Certified Chaos Dragon™</div>
+                <h2>Urmel</h2>
+                <div class="catalog-subtitle">Ein Wirbelwind mit Drachenherz und zwei Augen, die Geschichten erzählen.</div>
+
+                <div class="exhibit-specs">
+                    <strong>Look:</strong> Ein Auge Himmel, ein Auge Erde<br>
+                    <strong>Vibe:</strong> Schmuse-Rambo mit Abenteuer-Abo
+                </div>
+
+                <div class="archive-label">Sein Wesen</div>
+                <ul class="archive-list">
+                    <li><strong>Superkraft:</strong> Der legendäre Zomie-Sturm</li>
+                    <li><strong>Lebensziel:</strong> Menschen auf Trab halten</li>
+                    <li><strong>Highlight:</strong> Fressen & Leckerchen</li>
+                </ul>
+
+                <div class="archive-label">Eigenheiten</div>
+                <ul class="archive-list">
+                    <li><strong>Flausen:</strong> Trockentücher & Fussmatten klauen</li>
+                    <li><strong>Nemesis:</strong> Staubsauger</li>
+                    <li><strong>Naturalent:</strong> Chaos mit Stil</li>
+                </ul>
+            </div>
+
+            
+
+        </div>
+    </div>
+
+</body>
+</html>

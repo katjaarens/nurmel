@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Buchtest</title>
+</head>
+<body>
+
+<style>
+    .chapter { display: none; }
+    .chapter.active { display: block; }
+</style>
+
+<div class="chapter active" id="chapter-1">Kapitel 1 Inhalt</div>
+<div class="chapter" id="chapter-2">Kapitel 2 Inhalt</div>
+
+<button onclick="changeChapter(-1)" id="prevBtn" disabled>Zurück</button>
+<button onclick="changeChapter(1)" id="nextBtn">Weiter</button>
+
+<script>
+let currentChapter = 1;
+function changeChapter(dir) {
+    document.getElementById(`chapter-${currentChapter}`).classList.remove("active");
+    currentChapter += dir;
+    document.getElementById(`chapter-${currentChapter}`).classList.add("active");
+    prevBtn.disabled = currentChapter === 1;
+    nextBtn.disabled = currentChapter === 2;
+}
+</script>
+
+</body>
+</html>

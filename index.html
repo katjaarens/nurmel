@@ -3,226 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-    
-    <title>Urmel & Nuts | Dashboard</title>
+    <title>Nuts & Urmel – Zuhause</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Verhindert das Flackern beim Laden von Python */
-        script[type="py"] { display: none; }
-        
-        .story-section {
-            grid-column: span 4;
-            background: white;
-            border-radius: 30px;
-            padding: 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-top: 20px;
-            line-height: 1.8;
+        :root {
+            --bg: #020617;
+            --card-bg: #0F172A;
+            --text-main: #F8FAFC;
+            --text-soft: #94A3B8;
+
+            --accent-urmel: #10b981; /* Grün */
+            --accent-nuts: #3b82f6;  /* Blau */
+            --accent-abenteuer: #c084fc; /* Lila */
+
+            --border: rgba(255,255,255,0.08);
         }
 
-        .story-column {
-            padding: 30px 25px;
-            border-radius: 20px;
-            background-color: #fcfcfc;
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
         }
 
-        .nuts-column { border-left: 6px solid #2c5282; }
-        .urmel-column { border-left: 6px solid #38a169; }
-
-        /* Dialog Styling */
-        .chat-container {
-            grid-column: span 4;
-            background: #f8fafc;
-            border-radius: 30px;
-            padding: 40px;
-            margin-top: 20px;
+        /* NAVIGATION */
+        .main-nav {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            justify-content: center;
+            gap: 32px;
+            padding: 20px 24px;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .bubble {
-            max-width: 70%;
-            padding: 15px 25px;
-            border-radius: 20px;
-            font-size: 1.05em;
+        .main-nav a {
+            text-decoration: none;
+            color: var(--text-soft);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .main-nav a:hover,
+        .main-nav .active {
+            color: var(--text-main);
+        }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            padding: 140px 24px 100px 24px;
             position: relative;
         }
 
-        .bubble-nuts {
-            align-self: flex-start;
-            background: #2c5282;
-            color: white;
-            border-bottom-left-radius: 2px;
+        .museum-spotlight {
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            width: 900px;
+            height: 900px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(0,0,0,0));
+            filter: blur(40px);
+            z-index: -1;
         }
 
-        .bubble-urmel {
-            align-self: flex-end;
-            background: #38a169;
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .speaker-name {
-            font-weight: bold;
-            font-size: 0.8em;
-            margin-bottom: 5px;
-            display: block;
+        .glossy-title {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 3.8rem;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 16px;
         }
 
-        /* Hotspot Styling */
-        .profile-container { position: relative; width: 45%; overflow: hidden; height: 100%; }
-        .hotspot {
-            position: absolute; width: 20px; height: 20px;
-            background: rgba(255, 255, 255, 0.4); border: 2px solid white;
-            border-radius: 50%; cursor: pointer; z-index: 10;
-            animation: pulse 2s infinite; opacity: 0.7; transition: 0.3s;
-        }
-        .hotspot:hover { opacity: 1; background: rgba(255, 255, 255, 0.8); }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
-            70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        .glossy-title span {
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 2px solid var(--accent-nuts);
         }
 
-        .hotspot::after {
-            content: attr(data-info); position: absolute; bottom: 30px; left: 50%;
-            transform: translateX(-50%); background: #1c1e21; color: white;
-            padding: 8px 14px; border-radius: 10px; font-size: 0.8em;
-            white-space: nowrap; opacity: 0; transition: 0.3s; pointer-events: none;
-            font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-soft);
+            max-width: 640px;
+            margin: 0 auto;
         }
-        .hotspot:hover::after { opacity: 1; bottom: 35px; }
 
-        /* Responsive Fix */
-        @media (max-width: 768px) {
-            .story-section, .chat-container, div[style*="grid-column: span 3"] { grid-column: span 4 !important; }
-            div[style*="grid-column: span 2"] { grid-column: span 4 !important; }
-            div[style*="grid-column: span 1"] { grid-column: span 4 !important; }
-            .profile-container { width: 100%; height: 200px; }
+        /* GRID */
+        .grid {
+            max-width: 1100px;
+            margin: 40px auto 80px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 25px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card p {
+            color: var(--text-soft);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* ⭐ NEON-GLOW TITEL-BUTTONS ⭐ */
+        .title-button {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 12px;
+            border: 2px solid;
+            background: #0F172A;
+            transition: 0.25s ease;
+        }
+
+        .nuts-btn {
+            border-color: var(--accent-nuts);
+            box-shadow: 0 0 14px var(--accent-nuts);
+        }
+        .nuts-btn:hover {
+            box-shadow: 0 0 22px var(--accent-nuts);
+        }
+
+        .urmel-btn {
+            border-color: var(--accent-urmel);
+            box-shadow: 0 0 14px var(--accent-urmel);
+        }
+        .urmel-btn:hover {
+            box-shadow: 0 0 22px var(--accent-urmel);
+        }
+
+        .abenteuer-btn {
+            border-color: var(--accent-abenteuer);
+            box-shadow: 0 0 14px var(--accent-abenteuer);
+        }
+        .abenteuer-btn:hover {
+            box-shadow: 0 0 22px var(--accent-abenteuer);
+        }
+
+        /* Kleine Buttons unten */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent-nuts);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #60a5fa;
         }
     </style>
 </head>
-<body style="background-color: #f0f2f5; color: #1c1e21; margin: 0; font-family: 'Quicksand', sans-serif;">
 
-    <nav>
-        <a href="index.html" style="background: rgba(44, 82, 130, 0.1); border-radius: 10px;">Home</a>
-        <a href="nuts.html">Nuts</a>
-        <a href="urmel.html">Urmel</a>
-        <a href="abenteuer.html">Abenteuer</a>
-        <a href="Wuff-O-Meter.html">Dolmetscher 🎙️</a>
-    </nav>
+<body>
 
-    <div style="max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
-        
-        <div style="grid-column: span 3; background: linear-gradient(135deg, #2c5282, #63b3ed); border-radius: 30px; padding: 40px; color: white; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 20px rgba(44, 82, 130, 0.2);">
-            <h1 style="margin: 0; font-size: 2.5em; font-weight: 700;">Hallo von Nurmel! 👋</h1>
-            <p id="daily-status" style="font-size: 1.2em; opacity: 0.9; margin-top: 10px;">Lade Tagesstatus...</p>
-        </div>
+<nav class="main-nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="nuts.html">Nuts</a>
+    <a href="urmel.html">Urmel</a>
+    <a href="abenteuer.html">Abenteuer</a>
+    <a href="Unsere beiden Fellnasen.html">Dreamteam</a>
+</nav>
 
-        <div class="card" style="grid-column: span 1; display: flex; flex-direction: column; justify-content: space-between; padding: 25px !important; background: white !important;">
-            <div>
-                <div style="font-size: 0.75em; color: #2c5282; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">Schon gewusst? 🤔</div>
-                <p id="fact-display" style="font-size: 0.95em; color: #2c5282; margin: 0; min-height: 80px; font-weight: 500;">Lade Fakt...</p>
-            </div>
-            <button py-click="new_fact" style="padding: 10px !important; font-size: 0.9em !important; width: 100%;">Nächster Fakt →</button>
-        </div>
+<section class="hero">
+    <div class="museum-spotlight"></div>
 
-        <div class="card" style="grid-column: span 2; overflow: hidden; display: flex; padding: 0 !important; background: white !important;">
-            <div class="profile-container">
-                <img src="nuts_profil.jpg" style="width: 100%; height: 100%; object-fit: cover;">
-                <div class="hotspot" style="top: 38%; left: 47%;" data-info="Bettelblick Stufe 10 🥺"></div>
-                <div class="hotspot" style="top: 52%; left: 41%;" data-info="Gourmet-Nase 🦴"></div>
-                <div class="hotspot" style="bottom: 8%; left: 44%;" data-info="Profi-Pfotler 🐾"></div>
-            </div>
-            <div style="padding: 25px; display: flex; flex-direction: column; justify-content: center;">
-                <h2 style="margin: 0; color: #2c5282;">Nuts</h2>
-                <p style="color: #606770; font-size: 0.85em;">Aussiedor & Philosoph</p>
-                <a href="nuts.html" style="margin-top: 10px; color: #2c5282; font-weight: 600; text-decoration: none;">Profil →</a>
-            </div>
-        </div>
-
-        <div class="card" style="grid-column: span 2; overflow: hidden; display: flex; padding: 0 !important; background: white !important;">
-            <div class="profile-container">
-                <img src="urmel_profil.jpg" style="width: 100%; height: 100%; object-fit: cover;">
-                <div class="hotspot" style="top: 25%; left: 50%;" data-info="Wirbelwind-Zentrale 🌪️"></div>
-                <div class="hotspot" style="bottom: 15%; left: 35%;" data-info="Vollgas-Pfoten ⚡"></div>
-            </div>
-            <div style="padding: 25px; display: flex; flex-direction: column; justify-content: center;">
-                <h2 style="margin: 0; color: #38a169;">Urmel</h2>
-                <p style="color: #606770; font-size: 0.85em;">Aussie-Border-Mix</p>
-                <a href="urmel.html" style="margin-top: 10px; color: #38a169; font-weight: 600; text-decoration: none;">Profil →</a>
-            </div>
-        </div>
-
-        <div class="story-section">
-            <h2 style="color: #2c5282; font-size: 2.2em; text-align: center; margin-bottom: 30px; font-weight: 700;">Wie alles begann...</h2>
-            <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 40px;">Es gibt Momente, die das Leben auf den Kopf stellen – und meistens haben sie vier Pfoten.</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                <div class="story-column nuts-column">
-                    <h3 style="color: #2c5282; margin-top: 0;">Nuts: Der Fels in der Brandung</h3>
-                    <p>Er kam als Erster zu uns. Sein Motto: <strong>„Warum rennen, wenn man auch liegen kann?“</strong>.</p>
-                </div>
-                <div class="story-column urmel-column">
-                    <h3 style="color: #38a169; margin-top: 0;">Urmel: Der Wirbelwind</h3>
-                    <p>Plötzlich war es vorbei mit der Ruhe! Urmel brachte Energie für drei Hunde mit ins Haus.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-container card" style="background: #f8fafc !important;">
-            <h2 style="text-align: center; color: #1c1e21; margin-bottom: 20px;">Abgehört: Ein typisches Gespräch 💬</h2>
-            <div class="bubble bubble-nuts"><span class="speaker-name">Nuts</span>Urmel, warum rennst du? Die Couch ist doch warm. 😴</div>
-            <div class="bubble bubble-urmel"><span class="speaker-name">Urmel</span>KEINE ZEIT! Da ist ein Blatt gefallen! WO IST DER BALL?! 🎾⚡</div>
-        </div>
-
-        <div class="card" style="grid-column: span 4; text-align: center; border: 2px dashed #cbd5e0 !important; background: white !important;">
-            <h3 style="margin-top: 0;">Abenteuer-Idee 🎡</h3>
-            <div id="trick-display" style="font-size: 1.4em; font-weight: bold; color: #2c5282; margin: 20px 0;">Was machen wir heute?</div>
-            <button py-click="get_idea">Vorschlag würfeln</button>
-        </div>
-
+    <div class="logo glossy-title">
+        <span>N</span><span>U</span><span>T</span><span>S</span>
+        <span>&</span>
+        <span>U</span><span>R</span><span>M</span><span>E</span><span>L</span>
     </div>
 
-    <footer style="text-align: center; padding: 40px; color: #90949c; font-size: 0.9em;">
-        &copy; 2026 Urmel & Nuts Abenteuer
-    </footer>
+    <p>Zwei Hunde. Zwei Herzen. Zwei Geschichten – verbunden in einem Zuhause voller Wärme, Chaos und Liebe.</p>
+</section>
 
-    <script type="py">
-import random
-from pyscript import document
-from datetime import datetime
+<div class="grid">
 
-facts = [
-    "Nuts' Superkraft: Bettelblick Stufe 10.", 
-    "Urmel-Logik: ALLES ist ein Spielzeug.", 
-    "Nuts hört Rascheln aus 3km Entfernung.",
-    "Urmel kann in 0.5 Sekunden von 0 auf 100 beschleunigen."
-]
+    <div class="card">
+        <a class="title-button nuts-btn" href="nuts.html">Nuts – Der König des Sofas</a>
+        <p>Sanft, warm, leise – Nuts ist der Hund, der Herzen beruhigt und Räume weich macht.</p>
+        <a class="btn" href="nuts.html">Zu Nuts</a>
+    </div>
 
-def new_fact(event=None):
-    document.getElementById("fact-display").innerHTML = random.choice(facts)
+    <div class="card">
+        <a class="title-button urmel-btn" href="urmel.html">Urmel – Der kleine Drache</a>
+        <p>Chaos, Energie und ein Herz voller Abenteuerlust – Urmel bringt Leben in jeden Tag.</p>
+        <a class="btn" href="urmel.html">Zu Urmel</a>
+    </div>
 
-def get_idea(event):
-    ideen = ["Waldspaziergang 🌲", "Clicker-Training 🔘", "Suchspiele 🎾", "Couch-Tag 😴", "Leckerli-Suche im Garten 🦴"]
-    document.getElementById("trick-display").innerHTML = random.choice(ideen)
+    <div class="card">
+        <a class="title-button abenteuer-btn" href="abenteuer.html">Unsere Abenteuer</a>
+        <p>Ob Sofa‑Tag oder Draußen‑Abenteuer – hier entscheidet das Wetter, der Zufall oder einfach das Herz.</p>
+        <a class="btn" href="abenteuer.html">Zu den Abenteuern</a>
+    </div>
 
-def update_status():
-    hour = datetime.now().hour
-    if hour < 12: msg = "Guten Morgen! Urmel ist schon auf 100% Energie."
-    elif hour < 18: msg = "Mittagszeit. Nuts überwacht den Kühlschrank."
-    else: msg = "Feierabend. Zeit für Profi-Schnarchen."
-    document.getElementById("daily-status").innerHTML = msg
+</div>
 
-# Initialisierung
-update_status()
-new_fact()
-    </script>
 </body>
 </html>

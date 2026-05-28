@@ -2,986 +2,696 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abenteuer – Urmel & Nuts</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-    <py-config>
-        packages = ["pyodide-http", "requests"]
-    </py-config>
+    <title>Abenteuer</title>
+    <link rel="stylesheet" href="style.css">
 
     <style>
-        py-config { display: none; }
+    body { 
+        background-color: #030712;
+        background-image: radial-gradient(circle at top, #111827 0%, #030712 60%);
+        color: white; 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
 
-        :root {
-            --bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-soft: #475569;
-            --text-muted: #94A3B8;
+    .navbar {
+        width: 100%;
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        background: transparent;
+        margin-bottom: 30px;
+    }
 
-            --accent: #334155;
-            --accent-hover: #1E293B;
+    .nav-links {
+        display: flex;
+        gap: 30px;
+    }
 
-            --border: #E2E8F0;
-            --border-focus: #CBD5E1;
-        }
+    .nav-links a {
+        color: #8899b3;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        padding-bottom: 8px;
+        transition: color 0.3s;
+    }
 
-        * { box-sizing: border-box; }
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #3b82f6;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
 
-        body {
-            margin: 0;
-            font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
-        }
+    .nav-links a:hover,
+    .nav-links a.active {
+        color: #ffffff;
+    }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+        transform: scaleX(1);
+    }
 
-        /* NAVIGATION */
-        .main-nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
+    .adventure-title {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 40px 0;
+    }
 
-        .main-nav a {
-            font-weight: 500;
-            font-size: 0.9rem;
-            letter-spacing: 0.02em;
-            color: var(--text-soft);
-            transition: color 0.2s ease;
-            position: relative;
-            padding: 4px 0;
-        }
+    .adventure-title span {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 58px;
+        height: 58px;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-transform: uppercase;
+        background: rgba(15, 23, 42, 0.75);
+        border-radius: 10px;
+        border: 1px solid rgba(0,255,200,0.35);
+        box-shadow:
+            0 0 18px rgba(0,255,200,0.25),
+            inset 0 0 12px rgba(0,255,200,0.15);
+    }
 
-        .main-nav a:hover, .main-nav a.active {
-            color: var(--text-main);
-        }
+    .adventure-title span:nth-child(odd) {
+        border-color: rgba(59,130,246,0.8);
+        box-shadow:
+            0 0 18px rgba(59,130,246,0.55),
+            inset 0 0 12px rgba(59,130,246,0.25);
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 40px auto 80px auto;
-            padding: 0 24px;
-        }
+    .adventure-title span:nth-child(even) {
+        border-color: rgba(16,185,129,0.8);
+        box-shadow:
+            0 0 18px rgba(16,185,129,0.55),
+            inset 0 0 12px rgba(16,185,129,0.25);
+    }
 
-        /* PREMIUM CARDS */
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 32px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-            margin-bottom: 24px;
-        }
+    main {
+        max-width: 900px;
+        margin: 0 auto 60px;
+        padding: 0 20px;
+    }
 
-        .card h2 {
-            margin: 0 0 12px 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-        }
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.75);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
+    .modal-content {
+        background: rgba(15,23,42,0.97);
+        padding: 25px;
+        border-radius: 14px;
+        width: 90%;
+        max-width: 700px;
+        color: white;
+        position: relative;
+        border: 1px solid rgba(148,163,184,0.5);
+        box-shadow: 0 0 40px rgba(15,23,42,0.9);
+    }
 
-        h1 {
-            margin: 0 0 6px 0;
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
+    .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+    }
 
-        p {
-            margin: 0;
-            color: var(--text-soft);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
+    #nutsGameArea,
+    #urmelSnack2Area {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        height: 260px;
+        margin: 20px auto;
+        background:#020617;
+        border-radius:12px;
+        overflow:hidden;
+        border:1px solid rgba(255,255,255,0.1);
+    }
 
-        /* BUTTONS (CLEAN & MINIMAL) */
-        button {
-            background: var(--accent);
-            color: #ffffff;
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            font-size: 0.88rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
+    #startNutsGame,
+    #startUrmelSnack2 {
+        background:#0ea5e9;
+        border:none;
+        color:white;
+        padding:8px 16px;
+        border-radius:999px;
+        cursor:pointer;
+        font-weight:600;
+    }
 
-        button:hover {
-            background: var(--accent-hover);
-        }
+    #startNutsGame:hover,
+    #startUrmelSnack2:hover {
+        background:#38bdf8;
+    }
+    .game-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 26px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.75);
+    border-radius: 12px;
+    border: 2px solid rgba(59,130,246,0.8); /* Standard: Blau */
+    box-shadow:
+        0 0 18px rgba(59,130,246,0.55),
+        inset 0 0 12px rgba(59,130,246,0.25);
+    cursor: pointer;
+    transition: 0.25s ease;
+}
 
-        button.secondary {
-            background: transparent;
-            color: var(--text-soft);
-            border: 1px solid var(--border);
-        }
+.game-button:hover {
+    transform: scale(1.05);
+    box-shadow:
+        0 0 25px rgba(59,130,246,0.8),
+        inset 0 0 18px rgba(59,130,246,0.35);
+}
 
-        button.secondary:hover {
-            background: #F1F5F9;
-            color: var(--text-main);
-            border-color: var(--border-focus);
-        }
+/* Urmel bekommt grün */
+.game-button.urmel {
+    border-color: rgba(16,185,129,0.8);
+    box-shadow:
+        0 0 18px rgba(16,185,129,0.55),
+        inset 0 0 12px rgba(16,185,129,0.25);
+}
 
-        /* WETTER */
-        #weather-display {
-            font-size: 0.95rem;
-            color: var(--text-soft);
-        }
-        #weather-display:empty::before {
-            content: "Wetter-Check läuft...";
-            color: var(--text-muted);
-        }
+.game-button.urmel:hover {
+    box-shadow:
+        0 0 25px rgba(16,185,129,0.8),
+        inset 0 0 18px rgba(16,185,129,0.35);
+}
+.flip-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 40px;
+}
 
-        /* ÜBERRASCHUNGSBOX */
-        #surpriseContent {
-            margin-top: 16px;
-            padding: 16px;
-            background: #F8FAFC;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            animation: fadeIn 0.3s ease;
-        }
+.flip-card {
+    width: 300px;
+    height: 460px;
+    perspective: 1000px;
+}
 
-        /* TEXT-ADVENTURE (MODERN JOURNAL STYLE) */
-        .adventure-box {
-            background: #F8FAFC;
-            border-radius: 8px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            margin-top: 20px;
-        }
-        #adventure-text {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: var(--text-main);
-            margin: 0 0 24px 0;
-        }
-        .adventure-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        @media (max-width: 640px) {
-            .adventure-buttons { grid-template-columns: 1fr; }
-        }
-        .adv-btn {
-            background: #ffffff;
-            color: var(--text-soft);
-            border: 1px solid var(--border);
-            padding: 14px 18px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: left;
-        }
-        .adv-btn:hover {
-            background: #ffffff;
-            color: var(--text-main);
-            border-color: var(--text-soft);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
+.flip-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.7s;
+    transform-style: preserve-3d;
+}
 
-        /* GAMING SECTION (ELEGANT GRIDS) */
-        .game-section-title {
-            margin: 48px 0 8px 0;
-            font-size: 1.35rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-        }
+.flip-card:hover .flip-inner {
+    transform: rotateY(180deg);
+}
 
-        .game-row {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 40px;
-            align-items: start;
-            margin: 24px 0 48px 0;
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--border);
-        }
-        .game-row:last-of-type {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+.flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(15,23,42,0.85);
+    border: 2px solid rgba(59,130,246,0.8);
+    box-shadow:
+        0 0 18px rgba(59,130,246,0.55),
+        inset 0 0 12px rgba(59,130,246,0.25);
+}
 
-        .sprech-wrapper {
-            position: relative;
-        }
+.flip-back {
+    transform: rotateY(180deg);
+}
 
-        .sprechbild {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            object-fit: cover;
-        }
+/* Urmel bekommt grün */
+.flip-card.urmel .flip-front,
+.flip-card.urmel .flip-back {
+    border-color: rgba(16,185,129,0.8);
+    box-shadow:
+        0 0 18px rgba(16,185,129,0.55),
+        inset 0 0 12px rgba(16,185,129,0.25);
+}
+.flip-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 40px;
+}
 
-        .game-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 16px; 
-        }
+.flip-card {
+    width: 250px;
+    height: 390px;
+}
 
-        .game-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
+.flip-inner {
+    width: 80%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.7s;
+    transform-style: preserve-3d;
+}
 
-        .score-board {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-soft);
-        }
+.flip-card:hover .flip-inner {
+    transform: rotateY(180deg);
+}
 
-        /* Minimalistischer Ladebalken als Gefühlsanzeige */
-        .emotion-meter {
-            width: 100%;
-            max-width: 320px;
-            height: 4px;
-            background: #E2E8F0;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .emotion-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--text-soft);
-            transition: width 0.3s ease;
-        }
+.flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+    background: rgba(15,23,42,0.85);
+    border: 2px solid rgba(59,130,246,0.8);
+    box-shadow:
+        0 0 18px rgba(59,130,246,0.55),
+        inset 0 0 12px rgba(59,130,246,0.25);
+}
 
-        .game-area {
-            width: 100%;
-            max-width: 320px;
-            height: 320px;
-            background: #F8FAFC;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-        }
+.flip-back {
+    transform: rotateY(180deg);
+}
 
-        .snack, .nuts-heart {
-            position: absolute;
-            font-size: 1.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
+.flip-img {
+    width: 100%;
+    height: 350;        /* größerer Bildbereich */
+    object-fit: cover;    /* Bild füllt den Bereich */
+    border-radius: 12px;
+}
 
-        .mini-heart, .mini-snack {
-            position: absolute;
-            font-size: 1rem;
-            pointer-events: none;
-            user-select: none;
-        }
 
-        /* LABYRINTH INTERFACE */
-        #mazeCanvas {
-            touch-action: none;
-            display: block;
-            margin: 0 auto;
-        }
+/* Urmel bekommt grün */
+.flip-card.urmel .flip-front,
+.flip-card.urmel .flip-back {
+    border-color: rgba(16,185,129,0.8);
+    box-shadow:
+        0 0 18px rgba(16,185,129,0.55),
+        inset 0 0 12px rgba(16,185,129,0.25);
+}
+.polaroid-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow:
+        0 0 12px rgba(59,130,246,0.65),   /* Außen-Glow */
+        inset 0 0 8px rgba(59,130,246,0.35); /* Innen-Glow */
+    transition: 0.3s ease;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(2px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+.polaroid-img:hover {
+    box-shadow:
+        0 0 18px rgba(59,130,246,0.9),
+        inset 0 0 12px rgba(59,130,246,0.45);
+    transform: scale(1.03);
+}
+.flip-card.urmel .polaroid-img {
+    box-shadow:
+        0 0 12px rgba(16,185,129,0.65),
+        inset 0 0 8px rgba(16,185,129,0.35);
+}
 
-        @media (max-width: 768px) {
-            .game-row { grid-template-columns: 1fr; gap: 24px; }
-            .sprech-wrapper { max-width: 200px; }
-        }
+.flip-card.urmel .polaroid-img:hover {
+    box-shadow:
+        0 0 18px rgba(16,185,129,0.9),
+        inset 0 0 12px rgba(16,185,129,0.45);
+}
+
     </style>
 </head>
-
 <body>
-
-    <nav class="main-nav">
-        <a href="index.html">Home</a>
-        <a href="nuts.html">Nuts</a>
-        <a href="urmel.html">Urmel</a>
-        <a href="abenteuer.html" class="active">Abenteuer</a>
-        <a href="Unsere beiden Fellnasen.html" class="active">Dreamteam</a>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="nuts.html">Nuts</a>
+            <a href="urmel.html">Urmel</a>
+            <a href="abenteuer.html" class="active">Abenteuer</a>
+            <a href="Unsere beiden Fellnasen.html">Dreamteam</a>
+        </div>
     </nav>
 
-    <div class="container">
+    <h1 class="adventure-title">
+        <span>A</span><span>B</span><span>E</span><span>N</span><span>T</span>
+        <span>E</span><span>U</span><span>E</span><span>R</span>
+    </h1>
 
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <h1>Unsere Abenteuer</h1>
-                    <p>Aktivitäten und kleine Beschäftigungen für Nuts & Urmel.</p>
-                </div>
-                <button id="dice-button" class="secondary">Vorschlag würfeln</button>
+    <main>
+        <div class="game-buttons">
+            <button id="openNutsGame" class="game-button">⚽ Nuts’ Ballspiel</button>
+<button id="openUrmelSnack2" class="game-button urmel">🍗 Urmels Snack‑Jagd 2.0</button>
+
+        </div>
+    </main>
+
+    <!-- Nuts Modal -->
+    <div class="modal-overlay" id="nutsBallModal">
+      <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('nutsBallModal')">&times;</button>
+
+        <h2>Exponat 003: Nuts’ Balljagd</h2>
+        <p>Fang so viele Bälle wie möglich, aber pass auf diesen 🎱 auf!</p>
+
+        <div id="nutsGameArea"></div>
+
+        <p id="nutsScore">Punkte: 0 | Leben: 💖💖💖</p>
+        <p id="nutsHighscore">Highscore: 0</p>
+
+        <p id="nutsComment" style="font-size:18px; min-height:28px; margin-top:10px;"></p>
+
+        <button id="startNutsGame">Spiel starten</button>
+      </div>
+    </div>
+
+    <!-- Urmel Modal -->
+    <div class="modal-overlay" id="urmelSnack2Modal">
+      <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('urmelSnack2Modal')">&times;</button>
+
+        <h2>Exponat 004: Urmels Snack‑Jagd 2.0</h2>
+        <p>Fang die echten Snacks – meide die 🍫!</p>
+
+        <div id="urmelSnack2Area"></div>
+
+        <p id="urmelSnack2Score">Punkte: 0 | Leben: 💖💖💖</p>
+        <p id="urmelComment" style="font-size:18px; min-height:28px; margin-top:10px;"></p>
+<p id="urmelHighscore">Highscore: 0</p>
+
+        <button id="startUrmelSnack2">Spiel starten</button>
+      </div>
+    </div>
+<div class="flip-container">
+    <!-- Nuts Karte -->
+    <div class="flip-card">
+        <div class="flip-inner">
+            <div class="flip-front">
+                <img src="nuts_card1.jpg" alt="Nuts" class="flip-img">
+                <h3>Nuts 🐶</h3>
+            </div>
+            <div class="flip-back">
+                <h3>Nuts – Fun Facts</h3>
+                <ul>
+                    <li>Lieblingssnack: 🦴</li>
+                    <li>Superkraft: Sofawärmer</li>
+                    <li>Mag: Fahrradfahren 🚴‍♂️</li>
+                </ul>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <h2>Wetter-Check</h2>
-            <p style="margin-bottom: 16px;">Aktuelle Bedingungen für den Tagesplan.</p>
-            <div id="weather-display">Prüfe Wetterbedingungen...</div>
-        </div>
-
-        <div id="adventure-result-card" class="card" style="display:none;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">
-                Heutiges Ziel
+    <!-- Urmel Karte -->
+    <div class="flip-card urmel">
+        <div class="flip-inner">
+            <div class="flip-front">
+                <img src="urmel_card1.jpg" alt="Urmel" class="flip-img">
+                <h3>Urmel 🐾</h3>
             </div>
-            <div id="adventure-display" style="font-size: 1.35rem; font-weight: 600;"></div>
-        </div>
-
-        <div class="card">
-            <h2>Ruhiger Impuls</h2>
-            <p>Für unentschlossene Tage – eine kleine Inspiration für gemeinsame Zeit.</p>
-            <div style="margin-top: 16px;">
-                <button id="surpriseButton" class="secondary">Idee öffnen</button>
-                <div id="surpriseContent" style="display: none;"></div>
+            <div class="flip-back">
+                <h3>Urmel – Fun Facts</h3>
+                <ul>
+                    <li>Lieblingssnack: 🍗</li>
+                    <li>Superkraft: Alles fressen</li>
+                    <li>Mag: Abenteuer 🌪️</li>
+                </ul>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="card">
-            <h2>Ein Tag im Leben der Jungs</h2>
-            <p>Triff Entscheidungen für Nuts & Urmel und folge der Erzählung.</p>
-            
-            <div class="adventure-box">
-                <p id="adventure-text">Es ist Samstagmorgen. Die Sonne scheint und die Terrassentür geht auf. Wer stürmt zuerst nach draußen?</p>
-                
-                <div class="adventure-buttons" id="adventure-options">
-                    <button class="adv-btn" onclick="nextStep('urmel_flitzt')">Urmel flitzt direkt los</button>
-                    <button class="adv-btn" onclick="nextStep('nuts_sofa')">Nuts steuert strategisch das Sofa an</button>
-                </div>
-            </div>
-        </div>
-
-        <h2 class="game-section-title">Spiel mit uns</h2>
-        <p style="color: var(--text-soft); margin-bottom: 32px; font-size: 0.95rem;">
-            Kleine, minimalistische Beschäftigungen als visuelles Extra auf der Seite.
-        </p>
-
-        <div class="game-row">
-            <div class="sprech-wrapper">
-                <img src="urmel_kapitel3.jpg" alt="Urmel" class="sprechbild">
-            </div>
-
-            <div class="game-container">
-                <div class="game-label">Urmels Snack-Moment</div>
-                <div class="score-board" id="scoreBoard">Punkte: 0 | Versuche: ❤️❤️❤️❤️❤️</div>
-
-                <div class="emotion-meter">
-                    <div class="emotion-fill" id="urmelEmotion"></div>
-                </div>
-
-                <div id="gameArea" class="game-area"></div>
-                <div>
-                    <button id="startGame">Fütter Urmel</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="game-row">
-            <div class="sprech-wrapper">
-                <img src="nuts_kapitel5.jpg" alt="Nuts" class="sprechbild">
-            </div>
-
-            <div class="game-container">
-                <div class="game-label">Nuts' Kuschel-Moment</div>
-                <div class="score-board" id="nutsScoreBoard">Kuschelpunkte: 0 | Versuche: ❤️❤️❤️❤️❤️</div>
-
-                <div class="emotion-meter">
-                    <div class="emotion-fill" id="nutsEmotion"></div>
-                </div>
-
-                <div id="nutsGameArea" class="game-area"></div>
-                <div>
-                    <button id="startNutsGame">Kuschel mit Nuts</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="game-row">
-            <div class="sprech-wrapper" style="display: flex; align-items: center; justify-content: center; height: 100%; min-height: 150px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px;">
-                <div style="font-size: 2.5rem; color: var(--text-soft); user-select: none;">🧩</div>
-            </div>
-
-            <div class="game-container">
-                <div class="game-label">Fokus-Labyrinth</div>
-                <div class="score-board" id="mazeStatus">Bewege die Pfote 🐾 direkt zum Knochen 🦴!</div>
-
-                <div style="position: relative; width: 100%; max-width: 320px;">
-                    <canvas id="mazeCanvas" width="300" height="300" style="background: #ffffff; border: 1px solid var(--border); border-radius: 8px; cursor: grab;"></canvas>
-                </div>
-
-                <div>
-                    <button id="resetMaze" class="secondary">Zurücksetzen</button>
-                </div>
-            </div>
-        </div>
-
-    </div> <script>
-/* ÜBERRASCHUNGSBOX */
-const surpriseButton = document.getElementById("surpriseButton");
-const surpriseContent = document.getElementById("surpriseContent");
-
-const surprises = [
-    "Ein ruhiger Spaziergang an eurem Lieblingsweg.",
-    "Heute ist Sofa‑Kino‑Tag mit extra Decke.",
-    "Ein kleines Fotoshooting im Garten.",
-    "Nur ihr zwei, ein Kaffee und ein gutes Hörbuch.",
-    "Ein kurzer Ausflug zu einem neuen Baum, den ihr noch nicht kennt.",
-    "Heute zählt nur: langsam, bewusst, zusammen.",
-    "Ein paar neue Tricks – aber ohne Stress, nur spielerisch.",
-    "Ein Moment nur zum Kuscheln, ohne Handy, ohne Ablenkung."
-];
-
-surpriseButton.addEventListener("click", () => {
-    const random = Math.floor(Math.random() * surprises.length);
-    surpriseContent.innerText = surprises[random];
-    surpriseContent.style.display = "block";
-});
-
-/* INTERAKTIVES TEXT-ADVENTURE LOGIK */
-const adventureStory = {
-    start: {
-        text: "Es ist Samstagmorgen. Die Sonne scheint und die Terrassentür geht auf. Wer stürmt zuerst nach draußen?",
-        options: [
-            { text: "Urmel flitzt direkt los", next: "urmel_flitzt" },
-            { text: "Nuts steuert strategisch das Sofa an", next: "nuts_sofa" }
-        ]
-    },
-    urmel_flitzt: {
-        text: "Urmel schießt in den Garten und entdeckt am Zaun ein verdächtiges Blatt, das sich im Wind bewegt. Ein neues Abenteuer! Was macht er?",
-        options: [
-            { text: "Drüberklettern und das Blatt bezwingen!", next: "urmel_chaos" },
-            { text: "Nuts zu Hilfe rufen", next: "nuts_hilft" }
-        ]
-    },
-    nuts_sofa: {
-        text: "Nuts lässt sich mit einem tiefen Seufzer ins weiche Sofa sinken. Genau zwischen Andrea und Kathi. Herrlich! Aber plötzlich wackelt die Box mit den Leckerlis...",
-        options: [
-            { text: "Sofort hellwach sein und Aufmerksamkeit aktivieren", next: "nuts_leckerli" },
-            { text: "Weiterschlafen, Sofa-König bleibt Sofa-König", next: "nuts_schlaeft" }
-        ]
-    },
-    urmel_chaos: {
-        text: "Urmel springt todesmutig auf das Hindernis! Das Blatt ist besiegt, aber der kleine Drache hat jetzt ein paar Blümchen im Fell. Nuts schaut vom Fenster aus gelassen zu.",
-        options: [
-            { text: "Von vorne beginnen", next: "start" }
-        ]
-    },
-    nuts_hilft: {
-        text: "Nuts hört den Ruf des kleinen Bruders, bequemt sich vom Sofa und trabt in den Garten. Ein Blick von Nuts genügt – das Blatt bewegt sich nicht mehr. Teamarbeit pur!",
-        options: [
-            { text: "Von vorne beginnen", next: "start" }
-        ]
-    },
-    nuts_leckerli: {
-        text: "Nuts setzt seinen unwiderstehlichen Blick auf. Erfolg! Andrea holt ein Keks heraus. In dem Moment kommt Urmel wie ein Tornado reingeschossen, weil er 'Keks' gerochen hat!",
-        options: [
-            { text: "Von vorne beginnen", next: "start" }
-        ]
-    },
-    nuts_schlaeft: {
-        text: "Nuts rührt sich keinen Millimeter. Er schläft selig weiter und träumt von der nächsten großen Fahrradtour. Kuscheln ist heute wichtiger als alles andere.",
-        options: [
-            { text: "Von vorne beginnen", next: "start" }
-        ]
-    }
-};
-
-function nextStep(stepId) {
-    const step = adventureStory[stepId];
-    if (!step) return;
-
-    document.getElementById('adventure-text').innerText = step.text;
-    const optionsContainer = document.getElementById('adventure-options');
-    optionsContainer.innerHTML = '';
-
-    step.options.forEach(option => {
-        const button = document.createElement('button');
-        button.className = 'adv-btn';
-        button.innerText = option.text;
-        button.onclick = function() { nextStep(option.next); };
-        optionsContainer.appendChild(button);
-    });
-}
-
-/* POP EFFEKT */
-function emotionPop(container, emoji) {
-    const pop = document.createElement("div");
-    pop.className = "mini-snack"; 
-    pop.style.position = "absolute";
-    pop.style.top = "20px";
-    pop.style.left = "50%";
-    pop.style.transform = "translateX(-50%)";
-    pop.style.fontSize = "1.2rem";
-    pop.innerHTML = emoji;
-    container.appendChild(pop);
-    setTimeout(() => pop.remove(), 800);
-}
-
-/* ==========================================
-   URMEL GAME
-   ========================================== */
-function explodeSnack(x, y, container) {
-    const miniSnacks = ["🍗", "🍖", "🦴", "🥩"];
-    for (let i = 0; i < 4; i++) {
-        const s = document.createElement("div");
-        s.className = "mini-snack";
-        s.innerHTML = miniSnacks[Math.floor(Math.random() * miniSnacks.length)];
-        s.style.left = x + "px";
-        s.style.top = y + "px";
-        container.appendChild(s);
-
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 25 + Math.random() * 15;
-        const targetX = x + Math.cos(angle) * distance;
-        const targetY = y + Math.sin(angle) * distance - 10;
-
-        s.animate(
-            [
-                { transform: "translate(0, 0) scale(1)", opacity: 1 },
-                { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0.8)`, opacity: 0 }
-            ],
-            { duration: 500, easing: "ease-out" }
-        );
-
-        setTimeout(() => s.remove(), 510);
-    }
-}
-
-let score = 0;
-let urmelLives = 3;
-let gameRunning = false;
-let gameInterval;
-const snacks = ["🍗", "🍖", "🦴", "🥩"];
-
-function startGame() {
-    if (gameRunning) return;
-    gameRunning = true;
-    score = 0;
-    urmelLives = 5;
-    document.getElementById("scoreBoard").innerText = "Punkte: 0 | Versuche: ❤️❤️❤️❤️❤️";
-    document.getElementById("urmelEmotion").style.width = "0%";
-
-    const gameArea = document.getElementById("gameArea");
-    const activeSnacks = gameArea.querySelectorAll('.snack');
-    activeSnacks.forEach(s => s.remove());
-
-    function spawnSnack() {
-        if (!gameRunning) return;
-
-        const snack = document.createElement("div");
-        snack.className = "snack";
-        snack.innerHTML = snacks[Math.floor(Math.random() * snacks.length)];
-        snack.style.left = Math.random() * 280 + "px";
-        snack.style.top = "-40px";
-        gameArea.appendChild(snack);
-
-        let baseSpeed = 1.0 + Math.random() * 0.8;
-        let speedMultiplier = 1 + (score * 0.04); 
-        let fallSpeed = baseSpeed * speedMultiplier;
-
-        const fall = setInterval(() => {
-            if (!gameRunning) {
-                snack.remove();
-                clearInterval(fall);
-                return;
-            }
-
-            let top = parseInt(snack.style.top);
-            snack.style.top = top + fallSpeed + "px";
-
-            if (top > 320) {
-                snack.remove();
-                clearInterval(fall);
-                
-                urmelLives--;
-                updateUrmelScoreBoard();
-
-                if (urmelLives <= 0) {
-                    endUrmelGame();
-                }
-            }
-        }, 20);
-
-        snack.addEventListener("mousedown", (e) => {
-            if (!gameRunning) return;
-            score++;
-            updateUrmelScoreBoard();
-
-            let emotion = Math.min(score * 5, 100);
-            document.getElementById("urmelEmotion").style.width = emotion + "%";
-
-            const rect = gameArea.getBoundingClientRect();
-            explodeSnack(e.clientX - rect.left, e.clientY - rect.top, gameArea);
-
-            snack.remove();
-            clearInterval(fall);
-        });
-
-        let nextSpawnTime = Math.max(450, 900 - (score * 20));
-        gameInterval = setTimeout(spawnSnack, nextSpawnTime);
+    <script>
+    function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "flex";
     }
 
-    spawnSnack();
-}
-
-function updateUrmelScoreBoard() {
-    let hearts = "❤️".repeat(Math.max(0, urmelLives));
-    if (hearts === "") hearts = "Beendet";
-    document.getElementById("scoreBoard").innerText = `Punkte: ${score} | Versuche: ${hearts}`;
-}
-
-function endUrmelGame() {
-    gameRunning = false;
-    clearTimeout(gameInterval);
-}
-
-document.getElementById("startGame").addEventListener("click", startGame);
-
-
-/* ==========================================
-   NUTS GAME
-   ========================================== */
-function explodeHeart(x, y, container) {
-    const miniHearts = ["❤️", "🧡", "💛", "💚", "💙"];
-    for (let i = 0; i < 4; i++) {
-        const h = document.createElement("div");
-        h.className = "mini-heart";
-        h.innerHTML = miniHearts[Math.floor(Math.random() * miniHearts.length)];
-        h.style.left = x + "px";
-        h.style.top = y + "px";
-        container.appendChild(h);
-
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 25 + Math.random() * 15;
-        const targetX = x + Math.cos(angle) * distance;
-        const targetY = y + Math.sin(angle) * distance - 10;
-
-        h.animate(
-            [
-                { transform: "translate(0, 0) scale(1)", opacity: 1 },
-                { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0.8)`, opacity: 0 }
-            ],
-            { duration: 500, easing: "ease-out" }
-        );
-
-        setTimeout(() => h.remove(), 510);
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
     }
-}
 
-let nutsScore = 0;
-let nutsLives = 3;
-let nutsGameRunning = false;
-let nutsInterval;
-const hearts = ["❤️", "🧡", "💛", "💚", "💙"];
+    window.addEventListener("DOMContentLoaded", () => {
+        // Modal-Buttons
+        const btnOpenNuts = document.getElementById("openNutsGame");
+        const btnOpenUrmel2 = document.getElementById("openUrmelSnack2");
 
-function startNutsGame() {
-    if (nutsGameRunning) return;
-    nutsGameRunning = true;
-    nutsScore = 0;
-    nutsLives = 5;
-    document.getElementById("nutsScoreBoard").innerText = "Kuschelpunkte: 0 | Versuche: ❤️❤️❤️❤️❤️";
-    document.getElementById("nutsEmotion").style.width = "0%";
+        if (btnOpenNuts) {
+            btnOpenNuts.addEventListener("click", () => openModal("nutsBallModal"));
+        }
+        if (btnOpenUrmel2) {
+            btnOpenUrmel2.addEventListener("click", () => openModal("urmelSnack2Modal"));
+        }
 
-    const gameArea = document.getElementById("nutsGameArea");
-    const activeHearts = gameArea.querySelectorAll('.nuts-heart');
-    activeHearts.forEach(h => h.remove());
+        // ---------- Nuts’ Ball-Catch-Game ----------
+        let nutsInterval = null;
+        let nutsLives = 3;
+        let nutsPoints = 0;
+let nutsHighscore = localStorage.getItem("nutsHighscore") || 0;
+document.getElementById("nutsHighscore").textContent = "Highscore: " + nutsHighscore;
+let urmelHighscore = localStorage.getItem("urmelHighscore") || 0;
+document.getElementById("urmelHighscore").textContent = "Highscore: " + urmelHighscore;
 
-    function spawnHeart() {
-        if (!nutsGameRunning) return;
+        function updateNutsScore() {
+            const scoreEl = document.getElementById("nutsScore");
+            if (!scoreEl) return;
+            const hearts = "💖".repeat(Math.max(0, nutsLives));
+            scoreEl.textContent = `Punkte: ${nutsPoints} | Leben: ${hearts}`;
+        }
 
-        const heart = document.createElement("div");
-        heart.className = "nuts-heart";
-        heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
-        heart.style.left = Math.random() * 280 + "px";
-        heart.style.top = "-40px";
-        gameArea.appendChild(heart);
+        function startNutsGame() {
+            const area = document.getElementById("nutsGameArea");
+            const scoreEl = document.getElementById("nutsScore");
+            if (!area || !scoreEl) return;
 
-        let baseSpeed = 1.0 + Math.random() * 0.8;
-        let speedMultiplier = 1 + (nutsScore * 0.04); 
-        let fallSpeed = baseSpeed * speedMultiplier;
+            area.innerHTML = "";
+            nutsLives = 3;
+            nutsPoints = 0;
+            updateNutsScore();
 
-        const fall = setInterval(() => {
-            if (!nutsGameRunning) {
-                heart.remove();
-                clearInterval(fall);
-                return;
-            }
+            if (nutsInterval) clearInterval(nutsInterval);
 
-            let top = parseInt(heart.style.top);
-            heart.style.top = top + fallSpeed + "px";
-
-            if (top > 320) {
-                heart.remove();
-                clearInterval(fall);
-
-                nutsLives--;
-                updateNutsScoreBoard();
-
+            nutsInterval = setInterval(() => {
                 if (nutsLives <= 0) {
-                    endNutsGame();
+                    clearInterval(nutsInterval);
+                   scoreEl.textContent = `Spiel vorbei! Punkte: ${nutsPoints}`;
+
+// Highscore prüfen
+if (nutsPoints > nutsHighscore) {
+    nutsHighscore = nutsPoints;
+    localStorage.setItem("nutsHighscore", nutsHighscore);
+    document.getElementById("nutsHighscore").textContent = "Highscore: " + nutsHighscore;
+}
+
+                    return;
                 }
-            }
-        }, 20);
 
-        heart.addEventListener("mousedown", (e) => {
-            if (!nutsGameRunning) return;
-            nutsScore++;
-            updateNutsScoreBoard();
+                const ball = document.createElement("div");
 
-            let emotion = Math.min(nutsScore * 5, 100);
-            document.getElementById("nutsEmotion").style.width = emotion + "%";
+// Liste guter Bälle
+const goodBalls = ["⚽", "🏀", "⚾", "🥎", "🏐"];
 
-            const rect = gameArea.getBoundingClientRect();
-            explodeHeart(e.clientX - rect.left, e.clientY - rect.top, gameArea);
+// Niete = billiardkugel
+const badBall = "🎱";
 
-            heart.remove();
-            clearInterval(fall);
-        });
+// Zufällig entscheiden, ob gut oder schlecht
+const isGood = Math.random() > 0.25;
 
-        let nextSpawnTime = Math.max(450, 900 - (nutsScore * 20));
-        nutsInterval = setTimeout(spawnHeart, nextSpawnTime);
-    }
+// Zufälligen guten Ball auswählen
+const chosenBall = isGood 
+    ? goodBalls[Math.floor(Math.random() * goodBalls.length)]
+    : badBall;
 
-    spawnHeart();
+// Styling
+ball.style.position = "absolute";
+ball.style.width = "40px";
+ball.style.height = "40px";
+ball.style.top = "-40px";
+ball.style.left = Math.random() * 90 + "%";
+ball.style.cursor = "pointer";
+ball.style.background = "transparent";
+ball.style.display = "flex";
+ball.style.justifyContent = "center";
+ball.style.alignItems = "center";
+ball.style.fontSize = "32px";
+
+// Emoji setzen
+ball.textContent = chosenBall;
+
+// Info speichern
+ball.dataset.good = isGood ? "1" : "0";
+
+
+                ball.addEventListener("click", () => {
+                    const comment = document.getElementById("nutsComment");
+
+if (ball.dataset.good === "1") {
+    nutsPoints += 10;
+    comment.textContent = "Guter Fang! 😄🐾";
+} else {
+    nutsLives -= 1;
+    comment.textContent = "Autsch! 😖🏈";
 }
 
-function updateNutsScoreBoard() {
-    let livesHearts = "❤️".repeat(Math.max(0, nutsLives));
-    if (livesHearts === "") livesHearts = "Beendet";
-    document.getElementById("nutsScoreBoard").innerText = `Kuschelpunkte: ${nutsScore} | Versuche: ${livesHearts}`;
+                    updateNutsScore();
+                    ball.remove();
+                });
+
+                area.appendChild(ball);
+
+                let y = -40;
+                const fall = setInterval(() => {
+                    y += 4;
+                    ball.style.top = y + "px";
+                    if (y > area.clientHeight) {
+                        clearInterval(fall);
+                        ball.remove();
+                    }
+                }, 40);
+            }, 700);
+        }
+
+        const startNutsBtn = document.getElementById("startNutsGame");
+        if (startNutsBtn) {
+            startNutsBtn.addEventListener("click", startNutsGame);
+        }
+
+        // ---------- Urmels Snack-Jagd 2.0 ----------
+        let urmel2Interval = null;
+        let urmel2Lives = 3;
+        let urmel2Points = 0;
+
+        function updateUrmelSnack2Score() {
+            const scoreEl = document.getElementById("urmelSnack2Score");
+            if (!scoreEl) return;
+            const hearts = "💖".repeat(Math.max(0, urmel2Lives));
+            scoreEl.textContent = `Punkte: ${urmel2Points} | Leben: ${hearts}`;
+        }
+
+        function startUrmelSnack2() {
+            const area = document.getElementById("urmelSnack2Area");
+            const scoreEl = document.getElementById("urmelSnack2Score");
+            if (!area || !scoreEl) return;
+
+            area.innerHTML = "";
+            urmel2Lives = 3;
+            urmel2Points = 0;
+            updateUrmelSnack2Score();
+
+            if (urmel2Interval) clearInterval(urmel2Interval);
+
+            urmel2Interval = setInterval(() => {
+                if (urmel2Lives <= 0) {
+                    clearInterval(urmel2Interval);
+                    scoreEl.textContent = `Snack-Jagd vorbei! Punkte: ${urmel2Points}`;
+
+// Highscore prüfen
+if (urmel2Points > urmelHighscore) {
+    urmelHighscore = urmel2Points;
+    localStorage.setItem("urmelHighscore", urmelHighscore);
+    document.getElementById("urmelHighscore").textContent = "Highscore: " + urmelHighscore;
 }
-
-function endNutsGame() {
-    nutsGameRunning = false;
-    clearTimeout(nutsInterval);
-}
-
-document.getElementById("startNutsGame").addEventListener("click", startNutsGame);
-
-
-/* ==========================================
-   LABYRINTH MODUL
-   ========================================== */
-const mazeCanvas = document.getElementById("mazeCanvas");
-const mazeCtx = mazeCanvas.getContext("2d");
-const mazeStatus = document.getElementById("mazeStatus");
-
-const mazeRows = 21; 
-const mazeCols = 21;
-const tileSize = 300 / mazeRows; 
-
-let mazeRaster = [];
-let isDraggingPlayer = false;
-let mazeWon = false;
-let path = [];
-let playerPos = { x: 0, y: 0 };
-
-function generateComplexMaze() {
-    mazeRaster = Array(mazeRows).fill().map(() => Array(mazeCols).fill(1));
-
-    let stack = [];
-    let current = { x: 1, y: 1 };
-    mazeRaster[current.y][current.x] = 0; 
-
-    while (true) {
-        let neighbors = [];
-        let directions = [
-            { dx: 0, dy: -2 }, { dx: 2, dy: 0 }, { dx: 0, dy: 2 }, { dx: -2, dy: 0 }
-        ];
-
-        directions.forEach(dir => {
-            let nx = current.x + dir.dx;
-            let ny = current.y + dir.dy;
-            if (nx > 0 && nx < mazeCols - 1 && ny > 0 && ny < mazeRows - 1) {
-                if (mazeRaster[ny][nx] === 1) {
-                    neighbors.push({ x: nx, y: ny, dx: dir.dx / 2, dy: dir.dy / 2 });
+                    return;
                 }
-            }
-        });
 
-        if (neighbors.length > 0) {
-            let next = neighbors[Math.floor(Math.random() * neighbors.length)];
-            mazeRaster[current.y + next.dy][current.x + next.dx] = 0;
-            mazeRaster[next.y][next.x] = 0;
+               const snack = document.createElement("div");
 
-            stack.push(current);
-            current = { x: next.x, y: next.y };
-        } else if (stack.length > 0) {
-            current = stack.pop();
-        } else {
-            break;
+// Gute Snacks
+const goodSnacks = ["🍖", "🥕", "🦴", "🍗"];
+
+// Niete
+const badSnack = "🍫";
+
+// Zufällig entscheiden, ob gut oder schlecht
+const isReal = Math.random() > 0.3;
+
+// Zufälligen Snack auswählen
+const chosenSnack = isReal
+    ? goodSnacks[Math.floor(Math.random() * goodSnacks.length)]
+    : badSnack;
+
+// Styling
+snack.style.position = "absolute";
+snack.style.width = "40px";
+snack.style.height = "40px";
+snack.style.top = Math.random() * 75 + "%";
+snack.style.left = isReal ? "-40px" : "100%";
+snack.style.cursor = "pointer";
+snack.style.background = "transparent";
+snack.style.display = "flex";
+snack.style.justifyContent = "center";
+snack.style.alignItems = "center";
+snack.style.fontSize = "32px";
+
+// Emoji setzen
+snack.textContent = chosenSnack;
+
+// Info speichern
+snack.dataset.real = isReal ? "1" : "0";
+
+                snack.addEventListener("click", () => {
+                    const comment = document.getElementById("urmelComment");
+
+if (snack.dataset.real === "1") {
+    urmel2Points += 15;
+    comment.textContent = "Mjam! Lecker! 😋🐾";
+} else {
+    urmel2Lives -= 1;
+    comment.textContent = "Ihhh! Schokolade! 🤢🍫";
+}
+
+                    updateUrmelSnack2Score();
+                    snack.remove();
+                });
+
+                area.appendChild(snack);
+
+                let x = isReal ? -40 : area.clientWidth + 40;
+                const dir = isReal ? 4 : -4;
+
+                const move = setInterval(() => {
+                    x += dir;
+                    snack.style.left = x + "px";
+                    if (x < -60 || x > area.clientWidth + 60) {
+                        clearInterval(move);
+                        snack.remove();
+                    }
+                }, 40);
+            }, 800);
         }
-    }
 
-    mazeRaster[mazeRows-2][mazeCols-2] = 3; 
-
-    playerPos.x = 1 * tileSize + tileSize / 2;
-    playerPos.y = 1 * tileSize + tileSize / 2;
-    path = [{ x: playerPos.x, y: playerPos.y }];
-}
-
-function drawMaze() {
-    mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
-    
-    for (let r = 0; r < mazeRows; r++) {
-        for (let c = 0; c < mazeCols; c++) {
-            if (mazeRaster[r][c] === 1) {
-                mazeCtx.fillStyle = "#64748B"; // Ruhiges Slate-Grey für die Wände
-                mazeCtx.fillRect(c * tileSize, r * tileSize, tileSize + 0.5, tileSize + 0.5);
-            } else if (mazeRaster[r][c] === 3) {
-                mazeCtx.font = `${tileSize * 1.1}px sans-serif`;
-                mazeCtx.textAlign = "center";
-                mazeCtx.textBaseline = "middle";
-                mazeCtx.fillText("🦴", c * tileSize + tileSize/2, r * tileSize + tileSize/2);
-            }
+        const startUrmel2Btn = document.getElementById("startUrmelSnack2");
+        if (startUrmel2Btn) {
+            startUrmel2Btn.addEventListener("click", startUrmelSnack2);
         }
-    }
-
-    if (path.length > 1) {
-        mazeCtx.beginPath();
-        mazeCtx.moveTo(path[0].x, path[0].y);
-        for (let i = 1; i < path.length; i++) {
-            mazeCtx.lineTo(path[i].x, path[i].y);
-        }
-        mazeCtx.strokeStyle = "#EF4444"; // Dünne rote Linie
-        mazeCtx.lineWidth = tileSize * 0.2; 
-        mazeCtx.lineCap = "round";
-        mazeCtx.lineJoin = "round";
-        mazeCtx.stroke();
-    }
-
-    mazeCtx.font = `${tileSize * 1.2}px sans-serif`;
-    mazeCtx.textAlign = "center";
-    mazeCtx.textBaseline = "middle";
-    mazeCtx.fillText("🐾", playerPos.x, playerPos.y);
-    
-    // Zurücksetzen
-    mazeCtx.textAlign = "left";
-    mazeCtx.textBaseline = "alphabetic";
-}
-
-function isWall(x, y) {
-    const c = Math.floor(x / tileSize);
-    const r = Math.floor(y / tileSize);
-    if (r >= 0 && r < mazeRows && c >= 0 && c < mazeCols) {
-        return mazeRaster[r][c] === 1;
-    }
-    return true;
-}
-
-function getMazeCoords(e) {
-    const rect = mazeCanvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-}
-
-function startMazeMove(e) {
-    if (mazeWon) return;
-    const coords = getMazeCoords(e);
-    const dist = Math.hypot(coords.x - playerPos.x, coords.y - playerPos.y);
-    if (dist < tileSize * 1.5) {
-        isDraggingPlayer = true;
-        mazeCanvas.style.cursor = "grabbing";
-    }
-}
-
-function handleMazeMove(e) {
-    if (!isDraggingPlayer || mazeWon) return;
-    e.preventDefault(); 
-    
-    const coords = getMazeCoords(e);
-    let steps = 5; 
-    let dx = (coords.x - playerPos.x) / steps;
-    let dy = (coords.y - playerPos.y) / steps;
-    
-    for (let i = 0; i < steps; i++) {
-        let nextX = playerPos.x + dx;
-        let nextY = playerPos.y + dy;
-        
-        if (!isWall(nextX, playerPos.y)) playerPos.x = nextX;
-        if (!isWall(playerPos.x, nextY)) playerPos.y = nextY;
-    }
-    
-    path.push({ x: playerPos.x, y: playerPos.y });
-    
-    const currentC = Math.floor(playerPos.x / tileSize);
-    const currentR = Math.floor(playerPos.y / tileSize);
-    
-    if (mazeRaster[currentR][currentC] === 3) {
-        isDraggingPlayer = false;
-        mazeWon = true;
-        mazeCanvas.style.cursor = "default";
-        mazeStatus.innerText = "Labyrinth erfolgreich gelöst.";
-        mazeStatus.style.color = "#10B981";
-    }
-    
-    drawMaze();
-}
-
-function stopMazeMove() {
-    isDraggingPlayer = false;
-    mazeCanvas.style.cursor = "grab";
-}
-
-mazeCanvas.addEventListener("mousedown", startMazeMove);
-mazeCanvas.addEventListener("mousemove", handleMazeMove);
-window.addEventListener("mouseup", stopMazeMove);
-
-mazeCanvas.addEventListener("touchstart", startMazeMove);
-mazeCanvas.addEventListener("touchmove", handleMazeMove, { passive: false });
-window.addEventListener("touchend", stopMazeMove);
-
-document.getElementById("resetMaze").addEventListener("click", () => {
-    mazeWon = false;
-    isDraggingPlayer = false;
-    mazeCanvas.style.cursor = "grab";
-    mazeStatus.innerText = "Bewege die Pfote 🐾 direkt zum Knochen 🦴!";
-    mazeStatus.style.color = "var(--text-main)";
-    generateComplexMaze();
-    drawMaze();
-});
-
-generateComplexMaze();
-drawMaze();
-</script>
-
+    });
+    </script>
 </body>
 </html>
