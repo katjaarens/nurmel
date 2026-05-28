@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <title>Abenteuer – Urmel & Nuts</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <py-config>
         packages = ["pyodide-http", "requests"]
@@ -13,92 +14,974 @@
 
     <style>
         py-config { display: none; }
-        /* Kleiner Fix für das Laden von PyScript */
-        #weather-display:empty::before { content: "Wetter-Check läuft..."; }
+
+        :root {
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-soft: #475569;
+            --text-muted: #94A3B8;
+
+            --accent: #334155;
+            --accent-hover: #1E293B;
+
+            --border: #E2E8F0;
+            --border-focus: #CBD5E1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* NAVIGATION */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .main-nav a {
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            color: var(--text-soft);
+            transition: color 0.2s ease;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .main-nav a:hover, .main-nav a.active {
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto 80px auto;
+            padding: 0 24px;
+        }
+
+        /* PREMIUM CARDS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 12px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0 0 6px 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* BUTTONS (CLEAN & MINIMAL) */
+        button {
+            background: var(--accent);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--text-soft);
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover {
+            background: #F1F5F9;
+            color: var(--text-main);
+            border-color: var(--border-focus);
+        }
+
+        /* WETTER */
+        #weather-display {
+            font-size: 0.95rem;
+            color: var(--text-soft);
+        }
+        #weather-display:empty::before {
+            content: "Wetter-Check läuft...";
+            color: var(--text-muted);
+        }
+
+        /* ÜBERRASCHUNGSBOX */
+        #surpriseContent {
+            margin-top: 16px;
+            padding: 16px;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* TEXT-ADVENTURE (MODERN JOURNAL STYLE) */
+        .adventure-box {
+            background: #F8FAFC;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-top: 20px;
+        }
+        #adventure-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin: 0 0 24px 0;
+        }
+        .adventure-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .adventure-buttons { grid-template-columns: 1fr; }
+        }
+        .adv-btn {
+            background: #ffffff;
+            color: var(--text-soft);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .adv-btn:hover {
+            background: #ffffff;
+            color: var(--text-main);
+            border-color: var(--text-soft);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* GAMING SECTION (ELEGANT GRIDS) */
+        .game-section-title {
+            margin: 48px 0 8px 0;
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .game-row {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 40px;
+            align-items: start;
+            margin: 24px 0 48px 0;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .game-row:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .sprech-wrapper {
+            position: relative;
+        }
+
+        .sprechbild {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            object-fit: cover;
+        }
+
+        .game-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+        }
+
+        .game-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .score-board {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-soft);
+        }
+
+        /* Minimalistischer Ladebalken als Gefühlsanzeige */
+        .emotion-meter {
+            width: 100%;
+            max-width: 320px;
+            height: 4px;
+            background: #E2E8F0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .emotion-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--text-soft);
+            transition: width 0.3s ease;
+        }
+
+        .game-area {
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .snack, .nuts-heart {
+            position: absolute;
+            font-size: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .mini-heart, .mini-snack {
+            position: absolute;
+            font-size: 1rem;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* LABYRINTH INTERFACE */
+        #mazeCanvas {
+            touch-action: none;
+            display: block;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(2px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .game-row { grid-template-columns: 1fr; gap: 24px; }
+            .sprech-wrapper { max-width: 200px; }
+        }
     </style>
-    <title>Abenteuer - Urmel & Nuts</title>
 </head>
+
 <body>
 
-    <nav>
+    <nav class="main-nav">
         <a href="index.html">Home</a>
         <a href="nuts.html">Nuts</a>
         <a href="urmel.html">Urmel</a>
-        <a href="abenteuer.html" style="background: rgba(99, 179, 237, 0.2);">Abenteuer</a>
-        <a href="Wuff-O-Meter.html">Dolmetscher 🎙️</a>
+        <a href="abenteuer.html" class="active">Abenteuer</a>
+        <a href="Unsere beiden Fellnasen.html" class="active">Dreamteam</a>
     </nav>
 
     <div class="container">
-        
-        <div class="card" style="background: linear-gradient(135deg, #2c5282, #63b3ed) !important; color: white; text-align: center; margin-bottom: 30px;">
-            <h1 style="margin: 0; font-size: 2.5em; font-weight: 700;">Unsere Abenteuer 🐾🐾</h1>
-            <p style="font-size: 1.2em; opacity: 0.9; margin: 15px 0 25px 0;">Was wir heute wohl erleben?</p>
-            
-            <button py-click="get_adventure" id="dice-button">
-                🎲 Vorschlag würfeln
-            </button>
-        </div>
 
-        <div class="card" style="text-align: center; margin-bottom: 20px; padding: 20px !important;">
-            <div id="weather-display" style="font-size: 1.2em; color: #1c1e21; font-weight: 600;">
-                Prüfe Wetterbedingungen...
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h1>Unsere Abenteuer</h1>
+                    <p>Aktivitäten und kleine Beschäftigungen für Nuts & Urmel.</p>
+                </div>
+                <button id="dice-button" class="secondary">Vorschlag würfeln</button>
             </div>
         </div>
 
-        <div id="adventure-result-card" class="card" style="display: none; text-align: center; animation: fadeIn 0.5s;">
-            <div style="font-size: 0.8em; color: #2c5282; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">Heutiges Ziel:</div>
-            <div id="adventure-display" style="font-size: 1.8em; font-weight: 700; color: #2c5282;"></div>
+        <div class="card">
+            <h2>Wetter-Check</h2>
+            <p style="margin-bottom: 16px;">Aktuelle Bedingungen für den Tagesplan.</p>
+            <div id="weather-display">Prüfe Wetterbedingungen...</div>
         </div>
 
-    </div>
+        <div id="adventure-result-card" class="card" style="display:none;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">
+                Heutiges Ziel
+            </div>
+            <div id="adventure-display" style="font-size: 1.35rem; font-weight: 600;"></div>
+        </div>
 
-    <script type="py">
-import random
-import requests
-import pyodide_http
-from pyscript import document
+        <div class="card">
+            <h2>Ruhiger Impuls</h2>
+            <p>Für unentschlossene Tage – eine kleine Inspiration für gemeinsame Zeit.</p>
+            <div style="margin-top: 16px;">
+                <button id="surpriseButton" class="secondary">Idee öffnen</button>
+                <div id="surpriseContent" style="display: none;"></div>
+            </div>
+        </div>
 
-# Ermöglicht HTTP-Requests in PyScript
-pyodide_http.patch_all()
+        <div class="card">
+            <h2>Ein Tag im Leben der Jungs</h2>
+            <p>Triff Entscheidungen für Nuts & Urmel und folge der Erzählung.</p>
+            
+            <div class="adventure-box">
+                <p id="adventure-text">Es ist Samstagmorgen. Die Sonne scheint und die Terrassentür geht auf. Wer stürmt zuerst nach draußen?</p>
+                
+                <div class="adventure-buttons" id="adventure-options">
+                    <button class="adv-btn" onclick="nextStep('urmel_flitzt')">Urmel flitzt direkt los</button>
+                    <button class="adv-btn" onclick="nextStep('nuts_sofa')">Nuts steuert strategisch das Sofa an</button>
+                </div>
+            </div>
+        </div>
 
-def get_weather():
-    try:
-        # Wetter für Erwitte (51.61, 8.34)
-        response = requests.get("https://api.open-meteo.com/v1/forecast?latitude=51.61&longitude=8.34&current_weather=true")
-        if response.status_code == 200:
-            data = response.json()
-            temp = data['current_weather']['temperature']
-            document.getElementById("weather-display").innerHTML = f"Aktuell in Erwitte: {temp}°C 🐾"
-        else:
-            document.getElementById("weather-display").innerHTML = "Wetter-Server schläft gerade... 💤"
-    except Exception as e:
-        document.getElementById("weather-display").innerHTML = "Schau aus dem Fenster! 🪟"
+        <h2 class="game-section-title">Spiel mit uns</h2>
+        <p style="color: var(--text-soft); margin-bottom: 32px; font-size: 0.95rem;">
+            Kleine, minimalistische Beschäftigungen als visuelles Extra auf der Seite.
+        </p>
 
-def get_adventure(event):
-    abenteuer = [
-        "Die Boden-ist-Lava-Challenge: Nur über Teppiche laufen! 🔥",
-        "Nuts' Traum: Ein kontrolliertes 30-Minuten-Nickerchen im Sonnenstrahl ☀️",
-        "Urmels Speed-Training: 10 Runden um den Esstisch (Drift inklusive) 🏎️",
-        "Das große Schnüffel-Lotto: Wer findet das versteckte Stück Käse zuerst? 🧀",
-        "Eichhörnchen-TV: 10 Minuten intensives Beobachten am Fenster 🐿️",
-        "Pfoten-Wellness: Eine Massage für müde Gassi-Muskeln 🐾",
-        "Der 'Unsichtbare' Keks: Tu so, als würdest du ein Leckerli werfen! 🎭",
-        "Nuts entscheidet die Richtung: Wir folgen der Nase, egal wohin! 👃",
-        "Urmel-Special: Socken-Sortieren (Wir klauen sie, du suchst sie) 🧦",
-        "Das 'Komm-her-aber-bleib-da'-Spiel: Verwirrung pur! 😵‍💫",
-        "Unterwasser-Expedition: Wir werfen Steinchen in den Bach 🌊",
-        "Die Leckerli-Pipeline: Rollende Leckerlis über den Parkettboden jagen 💨",
-        "Show-Laufen: Wer kann am schönsten 'Sitz' machen? 🎩",
-        "Der 'Stille' Beobachter: Wer kann länger ununterbrochen starren? 👀",
-        "Das Schnitzelsuchgerät: Wir trainieren für den Biergarten 🥩"
-    ]
-    # Zeige die Karte und wähle zufällig
-    document.getElementById("adventure-result-card").style.display = "block"
-    document.getElementById("adventure-display").innerHTML = random.choice(abenteuer)
+        <div class="game-row">
+            <div class="sprech-wrapper">
+                <img src="urmel_kapitel3.jpg" alt="Urmel" class="sprechbild">
+            </div>
 
-# Direkt beim Laden ausführen
-get_weather()
-    </script>
+            <div class="game-container">
+                <div class="game-label">Urmels Snack-Moment</div>
+                <div class="score-board" id="scoreBoard">Punkte: 0 | Versuche: ❤️❤️❤️❤️❤️</div>
+
+                <div class="emotion-meter">
+                    <div class="emotion-fill" id="urmelEmotion"></div>
+                </div>
+
+                <div id="gameArea" class="game-area"></div>
+                <div>
+                    <button id="startGame">Fütter Urmel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-row">
+            <div class="sprech-wrapper">
+                <img src="nuts_kapitel5.jpg" alt="Nuts" class="sprechbild">
+            </div>
+
+            <div class="game-container">
+                <div class="game-label">Nuts' Kuschel-Moment</div>
+                <div class="score-board" id="nutsScoreBoard">Kuschelpunkte: 0 | Versuche: ❤️❤️❤️❤️❤️</div>
+
+                <div class="emotion-meter">
+                    <div class="emotion-fill" id="nutsEmotion"></div>
+                </div>
+
+                <div id="nutsGameArea" class="game-area"></div>
+                <div>
+                    <button id="startNutsGame">Kuschel mit Nuts</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-row">
+            <div class="sprech-wrapper" style="display: flex; align-items: center; justify-content: center; height: 100%; min-height: 150px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px;">
+                <div style="font-size: 2.5rem; color: var(--text-soft); user-select: none;">🧩</div>
+            </div>
+
+            <div class="game-container">
+                <div class="game-label">Fokus-Labyrinth</div>
+                <div class="score-board" id="mazeStatus">Bewege die Pfote 🐾 direkt zum Knochen 🦴!</div>
+
+                <div style="position: relative; width: 100%; max-width: 320px;">
+                    <canvas id="mazeCanvas" width="300" height="300" style="background: #ffffff; border: 1px solid var(--border); border-radius: 8px; cursor: grab;"></canvas>
+                </div>
+
+                <div>
+                    <button id="resetMaze" class="secondary">Zurücksetzen</button>
+                </div>
+            </div>
+        </div>
+
+    </div> <script>
+/* ÜBERRASCHUNGSBOX */
+const surpriseButton = document.getElementById("surpriseButton");
+const surpriseContent = document.getElementById("surpriseContent");
+
+const surprises = [
+    "Ein ruhiger Spaziergang an eurem Lieblingsweg.",
+    "Heute ist Sofa‑Kino‑Tag mit extra Decke.",
+    "Ein kleines Fotoshooting im Garten.",
+    "Nur ihr zwei, ein Kaffee und ein gutes Hörbuch.",
+    "Ein kurzer Ausflug zu einem neuen Baum, den ihr noch nicht kennt.",
+    "Heute zählt nur: langsam, bewusst, zusammen.",
+    "Ein paar neue Tricks – aber ohne Stress, nur spielerisch.",
+    "Ein Moment nur zum Kuscheln, ohne Handy, ohne Ablenkung."
+];
+
+surpriseButton.addEventListener("click", () => {
+    const random = Math.floor(Math.random() * surprises.length);
+    surpriseContent.innerText = surprises[random];
+    surpriseContent.style.display = "block";
+});
+
+/* INTERAKTIVES TEXT-ADVENTURE LOGIK */
+const adventureStory = {
+    start: {
+        text: "Es ist Samstagmorgen. Die Sonne scheint und die Terrassentür geht auf. Wer stürmt zuerst nach draußen?",
+        options: [
+            { text: "Urmel flitzt direkt los", next: "urmel_flitzt" },
+            { text: "Nuts steuert strategisch das Sofa an", next: "nuts_sofa" }
+        ]
+    },
+    urmel_flitzt: {
+        text: "Urmel schießt in den Garten und entdeckt am Zaun ein verdächtiges Blatt, das sich im Wind bewegt. Ein neues Abenteuer! Was macht er?",
+        options: [
+            { text: "Drüberklettern und das Blatt bezwingen!", next: "urmel_chaos" },
+            { text: "Nuts zu Hilfe rufen", next: "nuts_hilft" }
+        ]
+    },
+    nuts_sofa: {
+        text: "Nuts lässt sich mit einem tiefen Seufzer ins weiche Sofa sinken. Genau zwischen Andrea und Kathi. Herrlich! Aber plötzlich wackelt die Box mit den Leckerlis...",
+        options: [
+            { text: "Sofort hellwach sein und Aufmerksamkeit aktivieren", next: "nuts_leckerli" },
+            { text: "Weiterschlafen, Sofa-König bleibt Sofa-König", next: "nuts_schlaeft" }
+        ]
+    },
+    urmel_chaos: {
+        text: "Urmel springt todesmutig auf das Hindernis! Das Blatt ist besiegt, aber der kleine Drache hat jetzt ein paar Blümchen im Fell. Nuts schaut vom Fenster aus gelassen zu.",
+        options: [
+            { text: "Von vorne beginnen", next: "start" }
+        ]
+    },
+    nuts_hilft: {
+        text: "Nuts hört den Ruf des kleinen Bruders, bequemt sich vom Sofa und trabt in den Garten. Ein Blick von Nuts genügt – das Blatt bewegt sich nicht mehr. Teamarbeit pur!",
+        options: [
+            { text: "Von vorne beginnen", next: "start" }
+        ]
+    },
+    nuts_leckerli: {
+        text: "Nuts setzt seinen unwiderstehlichen Blick auf. Erfolg! Andrea holt ein Keks heraus. In dem Moment kommt Urmel wie ein Tornado reingeschossen, weil er 'Keks' gerochen hat!",
+        options: [
+            { text: "Von vorne beginnen", next: "start" }
+        ]
+    },
+    nuts_schlaeft: {
+        text: "Nuts rührt sich keinen Millimeter. Er schläft selig weiter und träumt von der nächsten großen Fahrradtour. Kuscheln ist heute wichtiger als alles andere.",
+        options: [
+            { text: "Von vorne beginnen", next: "start" }
+        ]
+    }
+};
+
+function nextStep(stepId) {
+    const step = adventureStory[stepId];
+    if (!step) return;
+
+    document.getElementById('adventure-text').innerText = step.text;
+    const optionsContainer = document.getElementById('adventure-options');
+    optionsContainer.innerHTML = '';
+
+    step.options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'adv-btn';
+        button.innerText = option.text;
+        button.onclick = function() { nextStep(option.next); };
+        optionsContainer.appendChild(button);
+    });
+}
+
+/* POP EFFEKT */
+function emotionPop(container, emoji) {
+    const pop = document.createElement("div");
+    pop.className = "mini-snack"; 
+    pop.style.position = "absolute";
+    pop.style.top = "20px";
+    pop.style.left = "50%";
+    pop.style.transform = "translateX(-50%)";
+    pop.style.fontSize = "1.2rem";
+    pop.innerHTML = emoji;
+    container.appendChild(pop);
+    setTimeout(() => pop.remove(), 800);
+}
+
+/* ==========================================
+   URMEL GAME
+   ========================================== */
+function explodeSnack(x, y, container) {
+    const miniSnacks = ["🍗", "🍖", "🦴", "🥩"];
+    for (let i = 0; i < 4; i++) {
+        const s = document.createElement("div");
+        s.className = "mini-snack";
+        s.innerHTML = miniSnacks[Math.floor(Math.random() * miniSnacks.length)];
+        s.style.left = x + "px";
+        s.style.top = y + "px";
+        container.appendChild(s);
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 25 + Math.random() * 15;
+        const targetX = x + Math.cos(angle) * distance;
+        const targetY = y + Math.sin(angle) * distance - 10;
+
+        s.animate(
+            [
+                { transform: "translate(0, 0) scale(1)", opacity: 1 },
+                { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0.8)`, opacity: 0 }
+            ],
+            { duration: 500, easing: "ease-out" }
+        );
+
+        setTimeout(() => s.remove(), 510);
+    }
+}
+
+let score = 0;
+let urmelLives = 3;
+let gameRunning = false;
+let gameInterval;
+const snacks = ["🍗", "🍖", "🦴", "🥩"];
+
+function startGame() {
+    if (gameRunning) return;
+    gameRunning = true;
+    score = 0;
+    urmelLives = 5;
+    document.getElementById("scoreBoard").innerText = "Punkte: 0 | Versuche: ❤️❤️❤️❤️❤️";
+    document.getElementById("urmelEmotion").style.width = "0%";
+
+    const gameArea = document.getElementById("gameArea");
+    const activeSnacks = gameArea.querySelectorAll('.snack');
+    activeSnacks.forEach(s => s.remove());
+
+    function spawnSnack() {
+        if (!gameRunning) return;
+
+        const snack = document.createElement("div");
+        snack.className = "snack";
+        snack.innerHTML = snacks[Math.floor(Math.random() * snacks.length)];
+        snack.style.left = Math.random() * 280 + "px";
+        snack.style.top = "-40px";
+        gameArea.appendChild(snack);
+
+        let baseSpeed = 1.0 + Math.random() * 0.8;
+        let speedMultiplier = 1 + (score * 0.04); 
+        let fallSpeed = baseSpeed * speedMultiplier;
+
+        const fall = setInterval(() => {
+            if (!gameRunning) {
+                snack.remove();
+                clearInterval(fall);
+                return;
+            }
+
+            let top = parseInt(snack.style.top);
+            snack.style.top = top + fallSpeed + "px";
+
+            if (top > 320) {
+                snack.remove();
+                clearInterval(fall);
+                
+                urmelLives--;
+                updateUrmelScoreBoard();
+
+                if (urmelLives <= 0) {
+                    endUrmelGame();
+                }
+            }
+        }, 20);
+
+        snack.addEventListener("mousedown", (e) => {
+            if (!gameRunning) return;
+            score++;
+            updateUrmelScoreBoard();
+
+            let emotion = Math.min(score * 5, 100);
+            document.getElementById("urmelEmotion").style.width = emotion + "%";
+
+            const rect = gameArea.getBoundingClientRect();
+            explodeSnack(e.clientX - rect.left, e.clientY - rect.top, gameArea);
+
+            snack.remove();
+            clearInterval(fall);
+        });
+
+        let nextSpawnTime = Math.max(450, 900 - (score * 20));
+        gameInterval = setTimeout(spawnSnack, nextSpawnTime);
+    }
+
+    spawnSnack();
+}
+
+function updateUrmelScoreBoard() {
+    let hearts = "❤️".repeat(Math.max(0, urmelLives));
+    if (hearts === "") hearts = "Beendet";
+    document.getElementById("scoreBoard").innerText = `Punkte: ${score} | Versuche: ${hearts}`;
+}
+
+function endUrmelGame() {
+    gameRunning = false;
+    clearTimeout(gameInterval);
+}
+
+document.getElementById("startGame").addEventListener("click", startGame);
+
+
+/* ==========================================
+   NUTS GAME
+   ========================================== */
+function explodeHeart(x, y, container) {
+    const miniHearts = ["❤️", "🧡", "💛", "💚", "💙"];
+    for (let i = 0; i < 4; i++) {
+        const h = document.createElement("div");
+        h.className = "mini-heart";
+        h.innerHTML = miniHearts[Math.floor(Math.random() * miniHearts.length)];
+        h.style.left = x + "px";
+        h.style.top = y + "px";
+        container.appendChild(h);
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 25 + Math.random() * 15;
+        const targetX = x + Math.cos(angle) * distance;
+        const targetY = y + Math.sin(angle) * distance - 10;
+
+        h.animate(
+            [
+                { transform: "translate(0, 0) scale(1)", opacity: 1 },
+                { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0.8)`, opacity: 0 }
+            ],
+            { duration: 500, easing: "ease-out" }
+        );
+
+        setTimeout(() => h.remove(), 510);
+    }
+}
+
+let nutsScore = 0;
+let nutsLives = 3;
+let nutsGameRunning = false;
+let nutsInterval;
+const hearts = ["❤️", "🧡", "💛", "💚", "💙"];
+
+function startNutsGame() {
+    if (nutsGameRunning) return;
+    nutsGameRunning = true;
+    nutsScore = 0;
+    nutsLives = 5;
+    document.getElementById("nutsScoreBoard").innerText = "Kuschelpunkte: 0 | Versuche: ❤️❤️❤️❤️❤️";
+    document.getElementById("nutsEmotion").style.width = "0%";
+
+    const gameArea = document.getElementById("nutsGameArea");
+    const activeHearts = gameArea.querySelectorAll('.nuts-heart');
+    activeHearts.forEach(h => h.remove());
+
+    function spawnHeart() {
+        if (!nutsGameRunning) return;
+
+        const heart = document.createElement("div");
+        heart.className = "nuts-heart";
+        heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+        heart.style.left = Math.random() * 280 + "px";
+        heart.style.top = "-40px";
+        gameArea.appendChild(heart);
+
+        let baseSpeed = 1.0 + Math.random() * 0.8;
+        let speedMultiplier = 1 + (nutsScore * 0.04); 
+        let fallSpeed = baseSpeed * speedMultiplier;
+
+        const fall = setInterval(() => {
+            if (!nutsGameRunning) {
+                heart.remove();
+                clearInterval(fall);
+                return;
+            }
+
+            let top = parseInt(heart.style.top);
+            heart.style.top = top + fallSpeed + "px";
+
+            if (top > 320) {
+                heart.remove();
+                clearInterval(fall);
+
+                nutsLives--;
+                updateNutsScoreBoard();
+
+                if (nutsLives <= 0) {
+                    endNutsGame();
+                }
+            }
+        }, 20);
+
+        heart.addEventListener("mousedown", (e) => {
+            if (!nutsGameRunning) return;
+            nutsScore++;
+            updateNutsScoreBoard();
+
+            let emotion = Math.min(nutsScore * 5, 100);
+            document.getElementById("nutsEmotion").style.width = emotion + "%";
+
+            const rect = gameArea.getBoundingClientRect();
+            explodeHeart(e.clientX - rect.left, e.clientY - rect.top, gameArea);
+
+            heart.remove();
+            clearInterval(fall);
+        });
+
+        let nextSpawnTime = Math.max(450, 900 - (nutsScore * 20));
+        nutsInterval = setTimeout(spawnHeart, nextSpawnTime);
+    }
+
+    spawnHeart();
+}
+
+function updateNutsScoreBoard() {
+    let livesHearts = "❤️".repeat(Math.max(0, nutsLives));
+    if (livesHearts === "") livesHearts = "Beendet";
+    document.getElementById("nutsScoreBoard").innerText = `Kuschelpunkte: ${nutsScore} | Versuche: ${livesHearts}`;
+}
+
+function endNutsGame() {
+    nutsGameRunning = false;
+    clearTimeout(nutsInterval);
+}
+
+document.getElementById("startNutsGame").addEventListener("click", startNutsGame);
+
+
+/* ==========================================
+   LABYRINTH MODUL
+   ========================================== */
+const mazeCanvas = document.getElementById("mazeCanvas");
+const mazeCtx = mazeCanvas.getContext("2d");
+const mazeStatus = document.getElementById("mazeStatus");
+
+const mazeRows = 21; 
+const mazeCols = 21;
+const tileSize = 300 / mazeRows; 
+
+let mazeRaster = [];
+let isDraggingPlayer = false;
+let mazeWon = false;
+let path = [];
+let playerPos = { x: 0, y: 0 };
+
+function generateComplexMaze() {
+    mazeRaster = Array(mazeRows).fill().map(() => Array(mazeCols).fill(1));
+
+    let stack = [];
+    let current = { x: 1, y: 1 };
+    mazeRaster[current.y][current.x] = 0; 
+
+    while (true) {
+        let neighbors = [];
+        let directions = [
+            { dx: 0, dy: -2 }, { dx: 2, dy: 0 }, { dx: 0, dy: 2 }, { dx: -2, dy: 0 }
+        ];
+
+        directions.forEach(dir => {
+            let nx = current.x + dir.dx;
+            let ny = current.y + dir.dy;
+            if (nx > 0 && nx < mazeCols - 1 && ny > 0 && ny < mazeRows - 1) {
+                if (mazeRaster[ny][nx] === 1) {
+                    neighbors.push({ x: nx, y: ny, dx: dir.dx / 2, dy: dir.dy / 2 });
+                }
+            }
+        });
+
+        if (neighbors.length > 0) {
+            let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+            mazeRaster[current.y + next.dy][current.x + next.dx] = 0;
+            mazeRaster[next.y][next.x] = 0;
+
+            stack.push(current);
+            current = { x: next.x, y: next.y };
+        } else if (stack.length > 0) {
+            current = stack.pop();
+        } else {
+            break;
+        }
+    }
+
+    mazeRaster[mazeRows-2][mazeCols-2] = 3; 
+
+    playerPos.x = 1 * tileSize + tileSize / 2;
+    playerPos.y = 1 * tileSize + tileSize / 2;
+    path = [{ x: playerPos.x, y: playerPos.y }];
+}
+
+function drawMaze() {
+    mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
+    
+    for (let r = 0; r < mazeRows; r++) {
+        for (let c = 0; c < mazeCols; c++) {
+            if (mazeRaster[r][c] === 1) {
+                mazeCtx.fillStyle = "#64748B"; // Ruhiges Slate-Grey für die Wände
+                mazeCtx.fillRect(c * tileSize, r * tileSize, tileSize + 0.5, tileSize + 0.5);
+            } else if (mazeRaster[r][c] === 3) {
+                mazeCtx.font = `${tileSize * 1.1}px sans-serif`;
+                mazeCtx.textAlign = "center";
+                mazeCtx.textBaseline = "middle";
+                mazeCtx.fillText("🦴", c * tileSize + tileSize/2, r * tileSize + tileSize/2);
+            }
+        }
+    }
+
+    if (path.length > 1) {
+        mazeCtx.beginPath();
+        mazeCtx.moveTo(path[0].x, path[0].y);
+        for (let i = 1; i < path.length; i++) {
+            mazeCtx.lineTo(path[i].x, path[i].y);
+        }
+        mazeCtx.strokeStyle = "#EF4444"; // Dünne rote Linie
+        mazeCtx.lineWidth = tileSize * 0.2; 
+        mazeCtx.lineCap = "round";
+        mazeCtx.lineJoin = "round";
+        mazeCtx.stroke();
+    }
+
+    mazeCtx.font = `${tileSize * 1.2}px sans-serif`;
+    mazeCtx.textAlign = "center";
+    mazeCtx.textBaseline = "middle";
+    mazeCtx.fillText("🐾", playerPos.x, playerPos.y);
+    
+    // Zurücksetzen
+    mazeCtx.textAlign = "left";
+    mazeCtx.textBaseline = "alphabetic";
+}
+
+function isWall(x, y) {
+    const c = Math.floor(x / tileSize);
+    const r = Math.floor(y / tileSize);
+    if (r >= 0 && r < mazeRows && c >= 0 && c < mazeCols) {
+        return mazeRaster[r][c] === 1;
+    }
+    return true;
+}
+
+function getMazeCoords(e) {
+    const rect = mazeCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+function startMazeMove(e) {
+    if (mazeWon) return;
+    const coords = getMazeCoords(e);
+    const dist = Math.hypot(coords.x - playerPos.x, coords.y - playerPos.y);
+    if (dist < tileSize * 1.5) {
+        isDraggingPlayer = true;
+        mazeCanvas.style.cursor = "grabbing";
+    }
+}
+
+function handleMazeMove(e) {
+    if (!isDraggingPlayer || mazeWon) return;
+    e.preventDefault(); 
+    
+    const coords = getMazeCoords(e);
+    let steps = 5; 
+    let dx = (coords.x - playerPos.x) / steps;
+    let dy = (coords.y - playerPos.y) / steps;
+    
+    for (let i = 0; i < steps; i++) {
+        let nextX = playerPos.x + dx;
+        let nextY = playerPos.y + dy;
+        
+        if (!isWall(nextX, playerPos.y)) playerPos.x = nextX;
+        if (!isWall(playerPos.x, nextY)) playerPos.y = nextY;
+    }
+    
+    path.push({ x: playerPos.x, y: playerPos.y });
+    
+    const currentC = Math.floor(playerPos.x / tileSize);
+    const currentR = Math.floor(playerPos.y / tileSize);
+    
+    if (mazeRaster[currentR][currentC] === 3) {
+        isDraggingPlayer = false;
+        mazeWon = true;
+        mazeCanvas.style.cursor = "default";
+        mazeStatus.innerText = "Labyrinth erfolgreich gelöst.";
+        mazeStatus.style.color = "#10B981";
+    }
+    
+    drawMaze();
+}
+
+function stopMazeMove() {
+    isDraggingPlayer = false;
+    mazeCanvas.style.cursor = "grab";
+}
+
+mazeCanvas.addEventListener("mousedown", startMazeMove);
+mazeCanvas.addEventListener("mousemove", handleMazeMove);
+window.addEventListener("mouseup", stopMazeMove);
+
+mazeCanvas.addEventListener("touchstart", startMazeMove);
+mazeCanvas.addEventListener("touchmove", handleMazeMove, { passive: false });
+window.addEventListener("touchend", stopMazeMove);
+
+document.getElementById("resetMaze").addEventListener("click", () => {
+    mazeWon = false;
+    isDraggingPlayer = false;
+    mazeCanvas.style.cursor = "grab";
+    mazeStatus.innerText = "Bewege die Pfote 🐾 direkt zum Knochen 🦴!";
+    mazeStatus.style.color = "var(--text-main)";
+    generateComplexMaze();
+    drawMaze();
+});
+
+generateComplexMaze();
+drawMaze();
+</script>
 
 </body>
 </html>
